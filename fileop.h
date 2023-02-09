@@ -1,15 +1,16 @@
 #ifndef __FILEOP_H__
 #define __FILEOP_H__
 
-#include <zip.h>
-#include <Zipper.hpp>
+#include "zipper.h"
+#include "unzipper.h"
 #include <string.h>
 #include <string>
-#include <dirent.h>
-#include <sys/stat.h>
 #include <assert.h>
 #include <iostream>
 #include <stdio.h>
+#include <QFileInfo>
+#include <QDirIterator>
+#include <QFile>
 
 #define MAX_PATH 1000
 
@@ -21,15 +22,13 @@ class FileOp{
 
         std::string static unzipFolder(const std::string unziped_path);
 
-        void static dirIterate(const char *dir_path, void(*operation)(const char *, void *), void *arg);
+        void static dirIterate(std::string dir_path, void(*operation)(std::string, void *, int ), void *arg, int flag);
 
-        void static deleteCache(const char * cache_path);
+        void static deleteCache(std::string cache_path);
 
     private:
 
-        void static dirZiper(const char *path, void *arg);
-        void static dirRemover(const char *path, void *arg);
-
+        void static dirZiper(std::string path, void *arg, int flag);
     private:
 
 };

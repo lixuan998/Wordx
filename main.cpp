@@ -7,28 +7,25 @@
 
 int main(int argc, char **argv)
 {
-    WordOp op("test2.docx");
+    WordOp op("/home/climatex/Documents/wordx/standard_model.docx");
     op.open();
-    std::string tmp;
-    //op.createTable(0, 0, 0, "", "", "", "");
-    op.replaceText("${1}", "替换第一个标签");
-    op.replaceText("${2}", "替换第二个标签");
-    op.replaceImage("image1", "/home/climatex/Pictures/Screenshots/A.jpeg");
-    op.replaceImage("image2", "/home/climatex/Pictures/Screenshots/B.png");
 
-    op.replaceImage("image3", "/home/climatex/Pictures/Screenshots/C.png");
 
+    op.replaceText("/home/climatex/Documents/wordx/mark_info", "/home/climatex/Documents/wordx/replace_text");
+    std::vector<std::string> table_files, recur_files;
+    std::vector<int> table_indexes, recur_indexes;
+
+    table_files.push_back("/home/climatex/Documents/wordx/table_info");
+    table_indexes.push_back(1);
+
+    recur_files.push_back("/home/climatex/Documents/wordx/info_list");
+    recur_files.push_back("/home/climatex/Documents/wordx/info_list2");
+    recur_indexes.push_back(1);
+    recur_indexes.push_back(2);
+    
+    op.addTableRows(table_indexes, table_files);
+    op.addInfoRecursive(recur_indexes, recur_files);
+    
      op.close();
-    // FileOp op;
-    // if(strcmp(argv[1], "zip") == 0)
-    // {
-    //     op.zipFolder(argv[2]);
-    // }
-    // else if(strcmp(argv[1], "unzip") == 0)
-    // {
-    //     std::cout << "unzip" << std::endl;
-    //     op.unzipFolder(argv[2]);
-    // }
-    //op.unzipFolder(filepath);
 
 }

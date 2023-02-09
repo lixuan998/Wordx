@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project(wordx LANGUAGES CXX)
 
+include_directories(zipper)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
@@ -11,16 +13,23 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(public_include ${CMAKE_CURRENT_SOURCE_DIR}/xml_models)
+set(save_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/xml_models)
+
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
+
+add_subdirectory(zipper)
+
 add_executable(wordx
   main.cpp
-  fileop.h fileop.cpp
-  wordop.h wordop.cpp
-
+  fileop.cpp
+  wordop.cpp
+  
 )
-target_link_libraries(wordx Qt${QT_VERSION_MAJOR}::Core)
-target_link_libraries(wordx libzip.so)
-target_link_libraries(wordx libZipper.so)
+
+target_link_libraries(wordx Qt${QT_VERSION_MAJOR}::Core Zipper)
+
+
 
