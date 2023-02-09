@@ -19,7 +19,8 @@
                     "/home/climatex/Qt5.12.12/5.12.12/gcc_64/include/QtCore"
                 ],
                 "limitSymbolsToIncludedHeaders": true
-            }
+            },
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
     "version": 4

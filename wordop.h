@@ -27,7 +27,9 @@ class WordOp{
 
         int replaceText(std::string mark_file, std::string replaced_text_file);
 
-        int replaceImage(std::string mark, std::string replaced_image);
+        int replaceImage(std::string mark, std::string replace_image);
+
+        int replaceImageFromFile(std::string mark_file_path, std::string replace_image_file_path);
 
         int addInfoRecursive(std::vector<int> indexs, std::vector<std::string> info_file_path);
 
@@ -36,6 +38,7 @@ class WordOp{
         int addTableRows(std::vector<int> indexs, std::vector<std::string> info_file_path);
 
     private:
+        int addImage(std::string mark, std::string replaced_image);
         void readXml(std::string &xml_file, std::string filepath = "");
         void readList(std::vector<std::vector<std::string>> &str_list, std::string filepath = "");
         void writeXml(std::string &xml_file, std::string filepath = "");

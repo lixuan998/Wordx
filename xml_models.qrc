@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/new/xml_models">
+        <file>xml_models/image.xml</file>
+        <file>xml_models/new_table.xml</file>
+        <file>xml_models/table_style.xml</file>
+    </qresource>
+
+    <qresource prefix="/new/demo_files">
+        <file>demo_files/first_rec_info_list</file>
+        <file>demo_files/second_rec_info_list</file>
+        <file>demo_files/mark_info</file>
+        <file>demo_files/replace_info</file>
+        <file>demo_files/mark_list</file>
+        <file>demo_files/img_list</file>
+        <file>demo_files/table_info</file>
+    </qresource>
+</RCC>
