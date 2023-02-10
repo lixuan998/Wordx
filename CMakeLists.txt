@@ -23,6 +23,7 @@ set(QRC_SOURCE_FILES xml_models.qrc)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
+
 qt5_add_resources(QRC_FILES ${QRC_SOURCE_FILES})
 
 SOURCE_GROUP("Resource Files" FILES ${QRC_SOURCE_FILES})
@@ -37,7 +38,7 @@ add_executable(wordx
   ${QRC_FILES}
 )
 
-target_link_libraries(wordx Qt${QT_VERSION_MAJOR}::Core Zipper)
+target_link_libraries(wordx Qt${QT_VERSION_MAJOR}::Core zipper)
 
 
 

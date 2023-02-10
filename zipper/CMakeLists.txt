@@ -516,4 +516,4 @@ Zipper version ${PACKAGE_VERSION}
      Installation $prefix            = ${CMAKE_INSTALL_PREFIX}
      ")
     
-
+add_library(zipper ALIAS ${STATIC_ZIPPER_LIBRARY})

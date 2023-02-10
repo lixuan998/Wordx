@@ -6,7 +6,6 @@ WordOp::WordOp(std::string filepath)
     this->filepath = filepath;
     image_rels = "<Relationship Id=\"${rId}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"${target}\"/>";
     std::vector<std::string> str;
-    //analyzeXml(str, "");
 }
 
 void WordOp::open(std::string filepath)
@@ -104,13 +103,17 @@ int WordOp::replaceText(std::string mark_file, std::string replaced_text_file)
 
 int WordOp::replaceImage(std::string mark, std::string replace_image)
 {
+	std::cout << "A" << std::endl;
     int mark_pos = myFind(document_xml, mark, 1);
     QDir dir(QString::fromStdString(cache_path + "/word/media"));
     int image_sn = dir.count() - 1;
-    int rid = addImage(("replace_image" + std::to_string(image_sn)), replace_image);
+	std::cout << "B" << std::endl;
+    int rid = addImage(("image" + std::to_string(image_sn)), replace_image);
+	std::cout << "C" << std::endl;
     std::string img_model;
     readXml(img_model, ":/new/xml_models/xml_models/image.xml");
-        
+    replaceText("${ID}", std::to_string(rid), img_model);
+    replaceText("${NAME}", ("image" + std::to_string(rid)), img_model);
     replaceText("${IMAGE_SN}", ("rId" + std::to_string(rid)), img_model);
     replaceText("${H}", "align", img_model);
     replaceText("${HARG}", "center", img_model);
@@ -236,7 +239,9 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<std::string> i
                 tmp_pos = tmp.find("${IMAGE_SN}");
                 if(tmp_pos != std::string::npos)
                 {
-                    int rid = addImage(("insert_image" + std::to_string((++ image_sn))), rep_info[i][info_index ++]);
+                    int rid = addImage(("image" + std::to_string((++ image_sn))), rep_info[i][info_index ++]);
+                    replaceText("${ID}", std::to_string(rid), tmp);
+                    replaceText("${NAME}", ("image" + std::to_string(rid)), tmp);
                     replaceText("${IMAGE_SN}", ("rId" + std::to_string(rid)), tmp);
                     replaceText("${H}", "align", tmp);
                     replaceText("${HARG}", "center", tmp);
@@ -335,7 +340,9 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<std::vector<st
                 tmp_pos = tmp.find("${IMAGE_SN}");
                 if(tmp_pos != std::string::npos)
                 {
-                    int rid = addImage(("insert_image" + std::to_string((++ image_sn))), rep_info[i][info_index ++]);
+                    int rid = addImage(("image" + std::to_string((++ image_sn))), rep_info[i][info_index ++]);
+                    replaceText("${ID}", std::to_string(rid), tmp);
+                    replaceText("${NAME}", ("image" + std::to_string(rid)), tmp);
                     replaceText("${IMAGE_SN}", ("rId" + std::to_string(rid)), tmp);
                     replaceText("${H}", "align", tmp);
                     replaceText("${HARG}", "center", tmp);
@@ -453,7 +460,7 @@ void WordOp::readXml(std::string &xml_file, std::string filepath)
     while(!file.atEnd())
     {
         QString tmp_res = file.readLine();
-        res.append(tmp_res + "\n");
+        res.append(tmp_res);
     }
     xml_file = res.toStdString();
 
@@ -569,40 +576,38 @@ void WordOp::analyzeXml(std::vector<std::string> &analysis_xml, std::string orig
 
 void WordOp::writeXml(std::string &xml_file, std::string filepath)
 {
-    std::fstream f;
+	QFile file(QString::fromStdString(filepath));
+	file.open(QIODevice::WriteOnly);
+	file.write(xml_file.c_str());
+	file.close();
+   /* std::fstream f;
     f.open(filepath, std::ios::out);
     f << xml_file << std::endl;
-    f.close();
+    f.close();*/
 }
 
 int WordOp::addImage(std::string mark, std::string replaced_image)
 {
-    std::fstream f_mark, f_image;
+    QFile f_mark, f_image;
     int rels_index = 1;
     bool found = false;
-    f_mark.open((cache_path + "/word/media/"), std::ios::in);
-    if(!f_mark.is_open())
-    {
-        QDir tmp_dir;
-        tmp_dir.mkpath(QString::fromStdString(cache_path + "/word/media/"));
-    }
-    else f_mark.close();
+	QDir tmp_dir(QString::fromStdString(cache_path + "/word/media/"));
+	if(!tmp_dir.exists()) tmp_dir.mkpath(QString::fromStdString(cache_path + "/word/media/"));
     std::string suffixs[5] = {".jpg", ".jpeg", ".bmp", ".webp", ".png"};
     for(int i = 0;i < 5; ++ i)
     {
-        f_mark.open((cache_path + "/word/media/" + mark + suffixs[i]), std::ios::in);
-        if(f_mark.is_open())
-        {
-            mark += suffixs[i];
-            found = true;
-            f_mark.close();
-            break;
-        }
+		if (QFile::exists(QString::fromStdString(cache_path + "/word/media/" + mark + suffixs[i])))
+		{
+			mark += suffixs[i];
+			found = true;
+			break;
+		}
     }
     if(found == false)
     {
         mark += ".png";
         readXml(doc_rels_xml, (cache_path + "/word/_rels/document.xml.rels"));
+
         int pos;
         while(true)
         {
@@ -616,7 +621,7 @@ int WordOp::addImage(std::string mark, std::string replaced_image)
                 new_image_rels.replace(pos, 9, ("media/" + mark));
 
                 pos = doc_rels_xml.find("</Relationships>");
-                doc_rels_xml.replace(pos, 16, new_image_rels + "</Relationships>");
+                doc_rels_xml.replace(pos, 16, new_image_rels + "</Relationships>\n");
 
                 writeXml(doc_rels_xml, (cache_path + "/word/_rels/document.xml.rels"));
                 break;
@@ -625,22 +630,18 @@ int WordOp::addImage(std::string mark, std::string replaced_image)
             ++ rels_index;
         }
     }
-    f_mark.open((cache_path + "/word/media/" + mark), std::ios::out | std::ios::ate);
-    f_mark.clear();
-    f_image.open(replaced_image, std::ios::in);
-    if(!f_image.is_open())
-    {
-        std::cerr << "Error can not open image " << replaced_image << std::endl;
-        return -1;
-    }
-    char buf[1024];
-    memset(buf, 0, sizeof(buf));
-
-    while(!f_image.eof())
-    {
-        f_image.read(buf, 1024);
-        f_mark.write(buf, 1024);
-    }
+	if (!QFile::exists(QString::fromStdString(replaced_image)))
+	{
+		std::cerr << "Error can not open image " << replaced_image << std::endl;
+		return -1;
+	}
+	f_mark.setFileName(QString::fromStdString(cache_path + "/word/media/" + mark));
+	f_image.setFileName(QString::fromStdString(replaced_image));
+    f_mark.open(QIODevice::ReadWrite);
+	f_image.open(QIODevice::ReadWrite);
+    
+	QByteArray b_array = f_image.readAll();
+	f_mark.write(b_array);
 
     f_mark.close();
     f_image.close();

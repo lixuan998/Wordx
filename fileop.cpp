@@ -26,7 +26,7 @@ void FileOp::zipFolder(const std::string unziped_path)
 {
 
    std::string zip_path = unziped_path.substr(0, unziped_path.find_last_of('.')) + "_copy.docx";
-   remove(zip_path.c_str());
+   QFile::remove(QString::fromStdString(zip_path));
    zipper::Zipper *zipper = new zipper::Zipper(zip_path, zipper::Zipper::openFlags::Overwrite);
    dirIterate(unziped_path, dirZiper, (void *) zipper, 0);
    zipper->close();
@@ -54,8 +54,8 @@ void FileOp::deleteCache(std::string cache_path)
 
 void FileOp::dirZiper(std::string path, void *arg, int flag)
 {
-   int cnt = 0;
    if(flag != 0) return;
+
    zipper::Zipper *zipper = reinterpret_cast<zipper::Zipper *>(arg);
    zipper->add(path);
    std::cout << "zip file: " << path << std::endl;

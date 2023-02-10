@@ -7,6 +7,7 @@
 #include "Timestamp.h"
 
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 
 namespace zipper {

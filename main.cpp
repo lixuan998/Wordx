@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     }
     WordOp op(argv[1]);
     op.open();
-
+    op.replaceImage("${ST_UP_SURFACE", "../demo_files/steel1.jpeg");
     op.replaceImageFromFile(":/new/demo_files/demo_files/mark_list", ":/new/demo_files/demo_files/img_list");
     op.replaceText(":/new/demo_files/demo_files/mark_info", ":/new/demo_files/demo_files/replace_info");
     std::vector<std::string> table_files, recur_files;
@@ -29,8 +29,9 @@ int main(int argc, char **argv)
     recur_indexes.push_back(2);
     
     op.addTableRows(table_indexes, table_files);
-    op.addInfoRecursive(recur_indexes, recur_files);
+   op.addInfoRecursive(recur_indexes, recur_files);
     
     op.close();
 
+	getchar();
 }
