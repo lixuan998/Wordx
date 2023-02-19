@@ -1,0 +1,33 @@
+<w:tbl>
+	<w:tr>
+		<w:trPr>
+			<w:trHeight w:val="${ROW_HEIGHT}" w:hRule="atLeast"/>
+		</w:trPr>
+		<w:tc>
+			<w:tcPr>
+			<w:tcW w:w="${CELL_WIDTH}" w:type="dxa"/>
+			<w:tcBorders>
+                <!--single 实线 dashed 虚线 dashSmallGap 间隔更小的虚线-->
+				<w:top w:val="${TOP_BORDER_LINE_TYPE}" w:sz="4" w:space="0" w:color="${TOP_BORDER_COLOR}"/>
+				<w:left w:val="${LEFT_BORDER_LINE_TYPE}" w:sz="4" w:space="0" w:color="${LEFT_BORDER_COLOR}"/>
+				<w:bottom w:val="${BOTTOM_BORDER_LINE_TYPE}" w:sz="4" w:space="0" w:color="${BOTTOM_BORDER_COLOR}"/>
+				<w:right w:val="${RIGHT_BORDER_LINE_TYPE}" w:sz="4" w:space="0" w:color="${RIGHT_BORDER_COLOR}"/>
+			</w:tcBorders>
+			</w:tcPr>
+			<w:p>
+				<w:pPr>
+					<w:pStyle w:val="TableContents"/>
+					<w:widowControl w:val="false"/>
+				</w:pPr>
+				<w:r>
+                    <w:rPr>
+                    <w:color w:val="${TEXT_COLOR}"/>
+                    </w:rPr>
+					<w:t>
+						${TEXT}
+					</w:t>
+				</w:r>
+			</w:p>
+		</w:tc>
+	</w:tr>
+</w:tbl>
