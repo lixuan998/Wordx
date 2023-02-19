@@ -1,0 +1,192 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"zipper/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 473,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 479,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 482,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 486,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 489,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "lib",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"zipper/libZipper.so.1.0.4",
+				"zipper/libZipper.so.1"
+			],
+			"targetId" : "Zipper::@7f8875fcc8d6dde9cf08",
+			"targetIndex" : 28,
+			"targetInstallNamelink" : "skip",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "lib",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"zipper/libZipper.so"
+			],
+			"targetId" : "Zipper::@7f8875fcc8d6dde9cf08",
+			"targetIndex" : 28,
+			"targetInstallNamelink" : "only",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "lib",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"zipper/libZipper.a"
+			],
+			"targetId" : "staticZipper::@7f8875fcc8d6dde9cf08",
+			"targetIndex" : 36,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "lib",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"zipper/libZipper-static.a"
+			],
+			"targetId" : "Zipper-static::@7f8875fcc8d6dde9cf08",
+			"targetIndex" : 29,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "lib",
+			"destination" : "bin",
+			"paths" : 
+			[
+				"zipper/Zipper-test"
+			],
+			"targetId" : "Zipper-test::@7f8875fcc8d6dde9cf08",
+			"targetIndex" : 31,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "/usr/local/share/pkgconfig",
+			"paths" : 
+			[
+				"build/zipper/zipper.pc"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "include/zipper",
+			"paths" : 
+			[
+				"zipper/minizip/crypt.h",
+				"zipper/minizip/ioapi.h",
+				"zipper/minizip/ioapi_buf.h",
+				"zipper/minizip/ioapi_mem.h",
+				"zipper/minizip/iowin32.h",
+				"zipper/minizip/unzip.h",
+				"zipper/minizip/zip.h",
+				"zipper/zipper/CDirEntry.h",
+				"zipper/zipper/Timestamp.h",
+				"zipper/zipper/defs.h",
+				"zipper/zipper/tools.h",
+				"zipper/zipper/unzipper.h",
+				"zipper/zipper/zipper.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/zipper",
+			"paths" : 
+			[
+				"build/zipper/zipperConfig.cmake"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 5,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/zipper",
+			"exportName" : "zipper",
+			"exportTargets" : 
+			[
+				{
+					"id" : "Zipper::@7f8875fcc8d6dde9cf08",
+					"index" : 28
+				},
+				{
+					"id" : "staticZipper::@7f8875fcc8d6dde9cf08",
+					"index" : 36
+				},
+				{
+					"id" : "Zipper-static::@7f8875fcc8d6dde9cf08",
+					"index" : 29
+				},
+				{
+					"id" : "Zipper-test::@7f8875fcc8d6dde9cf08",
+					"index" : 31
+				}
+			],
+			"paths" : 
+			[
+				"zipper/CMakeFiles/Export/lib/cmake/zipper/zipperTargets.cmake"
+			],
+			"type" : "export"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "zipper",
+		"source" : "zipper"
+	}
+}
