@@ -1,3 +1,18 @@
+/*********************************************************************************************************************************************
+File name:  fileop.h
+Author: Li Xuan
+Version: 1.0
+Date:  2023-2-19
+Description:  This module is used to zip and unzip files with suffix ".docx", it depends on zlib, zipper, minizips and Qt
+Function List: 
+    zipFolder:  Zip a folder
+    unzipFolder:  Unzip a folder
+    dirIterator:  Iterate a folder recursively. It also provide a function pointer argument that performs specific actions during the iteration
+    deleteCache:  Delete the cache folder
+    dirZipper:  A specific function that uses as a argument passses to the dirIterator function
+
+***********************************************************************************************************************************************/
+
 #ifndef __FILEOP_H__
 #define __FILEOP_H__
 
@@ -18,6 +33,7 @@
 class FileOp{
     public:
         FileOp();
+        ~FileOp();
         void static zipFolder(const std::string ziped_path);
 
         std::string static unzipFolder(const std::string unziped_path);

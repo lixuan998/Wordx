@@ -17,7 +17,7 @@
                         <wp:positionV relativeFrom="paragraph">
                             <wp:${V}>${VARG}</wp:${V}>
                         </wp:positionV>
-                        <wp:extent cx="6120130" cy="3442335" />
+                        <wp:extent cx="${CX}" cy="${CY}" />
                         <wp:effectExtent l="0" t="0" r="0" b="0" />
                         <wp:wrapSquare wrapText="largest" />
                         <wp:docPr id="${ID}" name="${NAME}" descr=""></wp:docPr>
@@ -46,7 +46,7 @@
                                     <pic:spPr bwMode="auto">
                                         <a:xfrm>
                                             <a:off x="0" y="0" />
-                                            <a:ext cx="6120130" cy="3442335" />
+                                            <a:ext cx="${CX}" cy="${CY}" />
                                         </a:xfrm>
                                         <a:prstGeom prst="rect">
                                             <a:avLst />

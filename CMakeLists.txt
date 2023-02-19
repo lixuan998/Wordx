@@ -20,9 +20,11 @@ set(save_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/xml_models)
 
 set(QRC_SOURCE_FILES xml_models.qrc)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
+find_package(OpenCV REQUIRED)
 
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 qt5_add_resources(QRC_FILES ${QRC_SOURCE_FILES})
 
@@ -35,10 +37,12 @@ add_executable(wordx
   fileop.cpp
   wordop.cpp
   
+  info.cpp
   ${QRC_FILES}
 )
 
-target_link_libraries(wordx Qt${QT_VERSION_MAJOR}::Core zipper)
+link_directories(${OpenCV_LIBRARY_DIRS})
+target_link_libraries(wordx Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui ${OpenCV_LIBS} zipper)
 
 
 

@@ -4,8 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "/usr/local/include/opencv4",
                 "/home/climatex/Qt5.12.12/5.12.12/gcc_64/include/QtCore",
-                "/usr/include/x86_64-linux-gnu/qt5"
+                "/home/climatex/Qt5.12.12/5.12.12/gcc_64/include/QtGui",
+                "/home/climatex/Qt5.12.12/5.12.12/gcc_64/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
@@ -16,7 +18,10 @@
             "browse": {
                 "path": [
                     "${workspaceFolder}/**",
-                    "/home/climatex/Qt5.12.12/5.12.12/gcc_64/include/QtCore"
+                    "/home/climatex/Qt5.12.12/5.12.12/gcc_64/include/QtCore",
+                    "/home/climatex/Qt5.12.12/5.12.12/gcc_64/include/QtGui",
+                    "/usr/local/include/opencv4/opencv2/**",
+                    "/usr/local/include/opencv4/opencv2/core/**"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             },
