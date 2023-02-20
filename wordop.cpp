@@ -129,8 +129,8 @@ int WordOp::replaceImage(std::vector<std::string> marks, std::vector<std::string
         replaceText("${HARG}", "center", img_model);
         replaceText("${V}", "posOffset", img_model);
         replaceText("${VARG}", "653", img_model);
-        replaceText("${CX}", "684530", img_model);
-        replaceText("${CY}", "382270", img_model);
+        replaceText("${CX}", "6845300", img_model);
+        replaceText("${CY}", "3822700", img_model);
 
         while(mark_pos != std::string::npos)
         {
@@ -267,6 +267,7 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
             std::cerr << "can not find " << index << " th loop end mark, over range" << std::endl;
             return -3;
         }
+
         loop_end = pos_end + findAround(document_xml, "</w:p>", pos_end, DOWN);
         if(loop_end == std::string::npos || loop_end == -1) return -3;
         loop_end += 6;
@@ -282,7 +283,10 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
             std::map<std::string, cv::Mat> label_to_mat_map = infos[i].getLabelImage();
             for(int j = 0; j < rep_model.size(); ++ j)
             {
-                st : tmp = rep_model[j];
+                st : 
+                if(j < rep_model.size()) tmp = rep_model[j];
+                else break;
+
                 for(auto a : label_to_mat_map)
                 {
                     if(tmp.find(a.first) != std::string::npos)
@@ -623,10 +627,6 @@ void WordOp::writeXml(std::string &xml_file, std::string filepath)
 	file.open(QIODevice::WriteOnly);
 	file.write(xml_file.c_str());
 	file.close();
-   /* std::fstream f;
-    f.open(filepath, std::ios::out);
-    f << xml_file << std::endl;
-    f.close();*/
 }
 
 int WordOp::addImage(std::string replace_image_path)

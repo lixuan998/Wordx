@@ -33,7 +33,7 @@ SOURCE_GROUP("Resource Files" FILES ${QRC_SOURCE_FILES})
 add_subdirectory(zipper)
 
 add_executable(wordx
-  main.cpp
+  demo.cpp
   fileop.cpp
   wordop.cpp
   
