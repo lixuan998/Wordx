@@ -28,11 +28,15 @@ void Info::clear()
 
 void Info::addInfo(QString label, QString text)
 {
+    label.replace("<", "&lt;");
+    label.replace(">", "&gt;");
     label_to_text_map[label] = text;
 }
 
 void Info::addInfo(QString label, cv::Mat image)
 {
+    label.replace("<", "&lt;");
+    label.replace(">", "&gt;");
     label_to_mat_map[label] = image;
 }
 

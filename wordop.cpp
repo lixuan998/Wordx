@@ -39,8 +39,17 @@ void WordOp::close()
 
 int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
 {
+
+    mark.replace("<", "&lt;");
+    mark.replace(">", "&gt;");
+        
+    replaced_text.replace("<", "&lt;");
+    replaced_text.replace(">", "&gt;");
+
     if(rep_str == "")
     {
+        
+        
         if(document_xml.isEmpty()) return -1;
         int p1 = myFind(document_xml, "<w:p>", 1);
         int p2 = myFind(document_xml, "</w:p>", -1);
@@ -109,8 +118,7 @@ int WordOp::replaceText(QString mark_file, QString replaced_text_file)
         qDebug() << "Items in mark file does not equal to items in replaced_text file";
         return -1;
     }
-    QString emp = "";
-    replaceText(marks, reps, emp);
+    replaceText(marks, reps);
     return 0;
 }
 
@@ -559,11 +567,29 @@ void WordOp::analyzeXml(std::vector<QString> &analysis_xml, QString origin_xml, 
 {
     analysis_xml.clear();
     int pos_start, pos_end, index = 1;
+    int tmp_pos_before = 0;
+    int tmp_pos_after = 0;
     pos_start = myFind(origin_xml, ("<" + flag + ">"), index);
     pos_end = myFind(origin_xml, ("</" + flag + ">"), index);
     while(pos_start != -1)
     {
         analysis_xml.push_back(origin_xml.mid(pos_start, pos_end + ("</" + flag + ">").size() - pos_start));
+        tmp_pos_before = analysis_xml.back().indexOf("<w:t>", 0);
+        while(tmp_pos_before != -1)
+        {
+            tmp_pos_after = analysis_xml.back().indexOf("</w:t>", tmp_pos_before + 6);
+
+            int pos_front = analysis_xml.back().indexOf('<', tmp_pos_before + 6);
+            int pos_back = analysis_xml.back().indexOf('>', tmp_pos_before + 6);
+
+            if(pos_back < tmp_pos_after)
+            {
+                analysis_xml.back().replace(pos_front, 1, "&lt;");
+                analysis_xml.back().replace(pos_back, 1, "&gt;");
+            }
+            
+            tmp_pos_before = analysis_xml.back().indexOf("<w:t>", tmp_pos_before + 6);
+        }
         ++index;
         pos_start = myFind(origin_xml, ("<" + flag + ">"), index);
         pos_end = myFind(origin_xml, ("</" + flag + ">"), index);

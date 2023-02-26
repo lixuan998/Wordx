@@ -48,14 +48,14 @@ int main(int argc, char **argv)
 
 void how_to_replace_text(WordOp &op)
 {
-    std::vector<QString> marks{"${STL_SN}",
+    std::vector<QString> marks{"$<STL_SN>",
                                    "${STL_CRAT_TME}", 
                                    "${STL_LEN}", 
                                    "${STL_WID}", 
                                    "${STL_SKNESS}",
                                    "${STL_DFCT_TP}"};
 
-    std::vector<QString> replace_with{"1000001",
+    std::vector<QString> replace_with{"<1000001>",
                                           "2023年2月9日",
                                           "10",
                                           "20",
@@ -127,7 +127,7 @@ void how_to_add_informations_recursively(WordOp &op)
         info.addInfo("${LP_SURFACE}", surfaces[i]);
         info.addInfo("${LP_X}", xs[i]);
         info.addInfo("${LP_Y}", ys[i]);
-        info.addInfo("${LP_IMAGE}", cv::imread("./demo_files/steel1.jpeg"));
+        info.addInfo("$<LP_IMAGE>", cv::imread("./demo_files/steel1.jpeg"));
         rec_infos.push_back(info);
     }
     /*---------------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ void how_to_add_table_rows(WordOp &op)
     for(int i = 0; i < 5; ++ i)
     {
         info.clear();
-        info.addInfo("${TB_ARG1}", arg1[i]);
+        info.addInfo("$<TB_ARG1>", arg1[i]);
         info.addInfo("${TB_ARG2}", arg2[i]);
         info.addInfo("${TB_ARG3}", arg3[i]);
         info.addInfo("${TB_ARG4}", cv::imread("./demo_files/steel1.jpeg"));

@@ -12,10 +12,10 @@
                 locked="0" layoutInCell="0" allowOverlap="1" relativeHeight="2">
                 <wp:simplePos x="0" y="0" />
                 <wp:positionH relativeFrom="column">
-                    <wp: ${H}>${HARG}</wp:${H}>
+                    <wp:${H}>${HARG}</wp:${H}>
                 </wp:positionH>
                 <wp:positionV relativeFrom="paragraph">
-                    <wp: ${V}>${VARG}</wp:${V}>
+                    <wp:${V}>${VARG}</wp:${V}>
                 </wp:positionV>
                 <wp:extent cx="${CX}" cy="${CY}" />
                 <wp:effectExtent l="0" t="0" r="0" b="0" />
