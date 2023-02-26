@@ -18,26 +18,26 @@ FileOp::~FileOp()
    std::cout << "A FileOp instance has been destroyed" << std::endl;
 }
 
-void FileOp::dirIterate(std::string dir_path, void(*operation)(std::string path, void *arg0, int flag), void *arg, int flag)
+void FileOp::dirIterate(QString dir_path, void(*operation)(QString path, void *arg0, int flag), void *arg, int flag)
 {
-   QDirIterator it(QString::fromStdString(dir_path));
+   QDirIterator it(dir_path);
    while(it.hasNext())
    {
       it.next();
       if(it.fileName() == "." || it.fileName() == "..") continue;
       if(it.fileInfo().isDir())
       {
-         dirIterate(it.filePath().toStdString(), operation, arg, (flag + 1));
+         dirIterate(it.filePath(), operation, arg, (flag + 1));
       }
-      (operation)(it.filePath().toStdString(), arg, flag);
+      (operation)(it.filePath(), arg, flag);
    }
 }
 
-void FileOp::zipFolder(const std::string unziped_path)
+void FileOp::zipFolder(const QString unziped_path)
 {
-   std::string zip_path = unziped_path.substr(0, unziped_path.find_last_of('.')) + "_copy.docx";
-   QFile::remove(QString::fromStdString(zip_path));
-   zipper::Zipper *zipper = new zipper::Zipper(zip_path, zipper::Zipper::openFlags::Overwrite);
+   QString zip_path = unziped_path.mid(0, unziped_path.lastIndexOf('.')) + "_.docx";
+   if(QFile::exists(zip_path)) QFile::remove(zip_path);
+   zipper::Zipper *zipper = new zipper::Zipper(zip_path.toStdString(), zipper::Zipper::openFlags::Overwrite);
    dirIterate(unziped_path, dirZiper, (void *) zipper, 0);
    zipper->close();
    delete zipper;
@@ -45,25 +45,25 @@ void FileOp::zipFolder(const std::string unziped_path)
    deleteCache(unziped_path);
 }
 
-std::string FileOp::unzipFolder(const std::string ziped_path)
+QString FileOp::unzipFolder(const QString ziped_path)
 {
-   int dot_pos = ziped_path.find_last_of('.');
-   std::string dir_path = ziped_path.substr(0, dot_pos) + ".cache";
-   zipper::Unzipper *unzipper = new zipper::Unzipper(ziped_path);
-   unzipper->extract(dir_path);
+   int dot_pos = ziped_path.lastIndexOf('.');
+   QString dir_path = ziped_path.mid(0, dot_pos) + ".cache";
+   zipper::Unzipper *unzipper = new zipper::Unzipper(ziped_path.toStdString());
+   unzipper->extract(dir_path.toStdString());
    return dir_path;
 }
 
-void FileOp::deleteCache(std::string cache_path)
+void FileOp::deleteCache(QString cache_path)
 {
-    QDir tmp_dir(QString::fromStdString(cache_path));
+    QDir tmp_dir(cache_path);
     tmp_dir.removeRecursively();
 }
 
-void FileOp::dirZiper(std::string path, void *arg, int flag)
+void FileOp::dirZiper(QString path, void *arg, int flag)
 {
    if(flag != 0) return;
    zipper::Zipper *zipper = reinterpret_cast<zipper::Zipper *>(arg);
-   zipper->add(path);
+   zipper->add(path.toStdString());
 }
 

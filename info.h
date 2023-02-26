@@ -1,4 +1,5 @@
 #pragma once
+#include <QString>
 #include <string>
 #include <vector>
 #include <map>
@@ -9,14 +10,14 @@ class Info
 {
     public:
         Info();
-        Info(std::map<std::string, std::string> label_to_text_map, std::map<std::string, cv::Mat> label_to_mat_map);
+        Info(std::map<QString, QString> label_to_text_map, std::map<QString, cv::Mat> label_to_mat_map);
         ~Info();
-        void addInfo(std::string label, std::string text);
-        void addInfo(std::string label, cv::Mat image);
+        void addInfo(QString label, QString text);
+        void addInfo(QString label, cv::Mat image);
         void clear();
-        std::map<std::string, std::string> getLabelText();
-        std::map<std::string, cv::Mat> getLabelImage();
+        std::map<QString, QString> getLabelText();
+        std::map<QString, cv::Mat> getLabelImage();
     private:
-        std::map<std::string, std::string> label_to_text_map;
-        std::map<std::string, cv::Mat> label_to_mat_map;
+        std::map<QString, QString> label_to_text_map;
+        std::map<QString, cv::Mat> label_to_mat_map;
 };

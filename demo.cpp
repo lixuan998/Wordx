@@ -21,7 +21,7 @@ void how_to_add_table_rows(WordOp &op);
 
 int main(int argc, char **argv)
 {
-    std::string word_path;
+    QString word_path;
     if(argc < 2)
     {
         word_path = "standard_model.docx";
@@ -40,27 +40,27 @@ int main(int argc, char **argv)
 
     op.close();
 
-    std::string gen_path = word_path.substr(0, word_path.find_last_of(".")) + "_copy.docx";
-    std::cout << "\033[32m" << "----------New file \"" << gen_path << "\" generated----------" << std::endl;
+    QString gen_path = word_path.mid(0, word_path.lastIndexOf(".")) + "_.docx";
+    qDebug() << "\033[32m" << "----------New file \"" << gen_path << "\" generated----------";
 }
 
 void how_to_replace_text(WordOp &op)
 {
-    std::vector<std::string> marks{"${STL_SN}",
+    std::vector<QString> marks{"${STL_SN}",
                                    "${STL_CRAT_TME}", 
                                    "${STL_LEN}", 
                                    "${STL_WID}", 
                                    "${STL_SKNESS}",
                                    "${STL_DFCT_TP}"};
 
-    std::vector<std::string> replace_with{"1000001",
+    std::vector<QString> replace_with{"1000001",
                                           "2023年2月9日",
                                           "10",
                                           "20",
                                           "22",
                                           "污渍"};
 
-    std::string rep_str = "";
+    QString rep_str = "";
     //第一个参数为vector<string>类型，表示自定义的标签集合
     //第一个参数为vector<string>类型，表示自定义的文本集合
     //第三个参数如果不为空，则本函数将在 rep_str 中进行替换操作, 
@@ -68,12 +68,11 @@ void how_to_replace_text(WordOp &op)
     //若为空，则默认为替换word文档中对应的 document.xml 中的内容
     //不可使用 replaceText(marks, replace_with, "") 这种写法
     op.replaceText(marks, replace_with, rep_str);
-
 }
 
 void how_to_replace_images_given_by_mat(WordOp &op)
 {
-    std::vector<std::string> marks{"${ST_UP_SURFACE}"};
+    std::vector<QString> marks{"${ST_UP_SURFACE}"};
     std::vector<cv::Mat> replace_mat_images{cv::imread("../demo_files/steel1.jpeg")};
 
     //第一个参数为vector<string>类型，表示自定义的标签集合
@@ -84,8 +83,8 @@ void how_to_replace_images_given_by_mat(WordOp &op)
 
 void how_to_replace_images_given_by_path(WordOp &op)
 {
-    std::vector<std::string> marks{"${ST_DOWN_SURFACE}"};
-    std::vector<std::string> replace_image_pathes{"../demo_files/steel2.jpeg"};
+    std::vector<QString> marks{"${ST_DOWN_SURFACE}"};
+    std::vector<QString> replace_image_pathes{"../demo_files/steel2.jpeg"};
 
     //第一个参数为vector<string>类型，表示自定义的标签集合
     //第二个参数为vector<string>类型，表示需要替换上去的图片路径集合
@@ -95,11 +94,11 @@ void how_to_replace_images_given_by_path(WordOp &op)
 
 void how_to_add_informations_recursively(WordOp &op)
 {
-    std::string defects[]{"污渍", "划痕", "氧化", "橡胶", "苹果"};
-    std::string surfaces[]{"上表面", "下表面", "上表面", "下表面", "上表面"};
-    std::string xs[]{"10", "20", "30", "40", "50"};
-    std::string ys[]{"1000", "2000", "3000", "4000", "5000"};
-    std::string sns[]{"1", "2", "3", "4", "5"};
+    QString defects[]{"污渍", "划痕", "氧化", "橡胶", "苹果"};
+    QString surfaces[]{"上表面", "下表面", "上表面", "下表面", "上表面"};
+    QString xs[]{"10", "20", "30", "40", "50"};
+    QString ys[]{"1000", "2000", "3000", "4000", "5000"};
+    QString sns[]{"1", "2", "3", "4", "5"};
 
     //此处的Info为我定义的类
     //Info类包含了将要被替换的文本或图片的信息
@@ -136,9 +135,9 @@ void how_to_add_table_rows(WordOp &op)
     std::vector<Info> table_infos;
     std::vector<int> table_indexes{1};
 
-    std::string arg1[]{"1", "2", "3", "4", "5"};
-    std::string arg2[]{"污渍", "划痕", "氧化", "橡胶", "苹果"};
-    std::string arg3[]{"1000", "2000", "3000", "4000", "5000"};
+    QString arg1[]{"1", "2", "3", "4", "5"};
+    QString arg2[]{"污渍", "划痕", "氧化", "橡胶", "苹果"};
+    QString arg3[]{"1000", "2000", "3000", "4000", "5000"};
 
     for(int i = 0; i < 5; ++ i)
     {

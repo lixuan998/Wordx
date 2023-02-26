@@ -1,21 +1,23 @@
 #include "wordop.h"
 
-WordOp::WordOp(std::string filepath)
+QString WordOp::line_feed_head = "</w:t></w:r></w:p><w:p><w:r>";
+QString WordOp::line_feed_tail = "<w:t>";
+WordOp::WordOp(QString filepath)
 {
     cache_path = "";
     this->filepath = filepath;
     image_rels = "<Relationship Id=\"${rId}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"${target}\"/>";
-    std::cout << "A WordOp instance has been created." << std::endl;
+    qDebug() << "A WordOp instance has been created.";
 }
 
 WordOp::~WordOp()
 {
-    std::cout << "A WordOp instance has been destroyed." << std::endl;
+    qDebug() << "A WordOp instance has been destroyed.";
 }
 
-void WordOp::open(std::string filepath)
+void WordOp::open(QString filepath)
 {
-    if(!filepath.empty()) this->filepath = filepath;
+    if(!filepath.isEmpty()) this->filepath = filepath;
     cache_path = FileOp::unzipFolder(this->filepath);
     readXml(document_xml, (cache_path + "/word/document.xml"));
 }
@@ -29,51 +31,57 @@ void WordOp::close()
     cache_path.clear();
     filepath.clear();
 }
-int WordOp::replaceText(std::string mark, std::string replaced_text, std::string &rep_str)
+int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
 {
     if(rep_str == "")
     {
-        if(document_xml.empty()) return -1;
+        if(document_xml.isEmpty()) return -1;
         int p1 = myFind(document_xml, "<w:p>", 1);
         int p2 = myFind(document_xml, "</w:p>", -1);
 
-        std::string tmp = document_xml.substr(p1, p2 + 6 - p1);
+        QString tmp = document_xml.mid(p1, p2 + 6 - p1);
 
-        std::vector<std::string> ana;
+        std::vector<QString> ana;
 
         analyzeXml(ana, tmp, "w:p");
 
         int pos = -1;
-        while((pos = document_xml.find(mark, pos + 1)) != std::string::npos)
+        while((pos = document_xml.indexOf(mark, pos + 1)) != -1)
         {
             document_xml.replace(pos, mark.length(), replaced_text);
         }
     }
     else
     {
-        if(rep_str.empty()) return -1;
+        if(rep_str.isEmpty()) return -1;
         int p1 = myFind(rep_str, "<w:p>", 1);
         int p2 = myFind(rep_str, "</w:p>", -1);
 
-        std::string tmp = rep_str.substr(p1, p2 + 6 - p1);
+        QString tmp = rep_str.mid(p1, p2 + 6 - p1);
 
-        std::vector<std::string> ana;
+        std::vector<QString> ana;
 
         analyzeXml(ana, tmp, "w:p");
 
         int pos = -1;
-        while((pos = rep_str.find(mark, pos + 1)) != std::string::npos)
+        while((pos = rep_str.indexOf(mark, pos + 1)) != -1)
         {
             rep_str.replace(pos, mark.length(), replaced_text);
         }
     }
     return 0;
 }
-int WordOp::replaceText(std::vector<std::string> marks, std::vector<std::string> replaced_texts, std::string &rep_str)
+int WordOp::replaceText(std::vector<QString> marks, std::vector<QString> replaced_texts)
+{
+    QString rep_str = "";
+    return replaceText(marks, replaced_texts, rep_str);
+}
+
+int WordOp::replaceText(std::vector<QString> marks, std::vector<QString> replaced_texts, QString &rep_str)
 {
     if(marks.size() != replaced_texts.size())
     {
-        std::cerr << "Mark size does not match ReplaceText size" << std::endl;
+        qDebug() << "Mark size does not match ReplaceText size";
         return -1;
     }
     for(int i = 0; i < marks.size(); ++ i)
@@ -82,10 +90,10 @@ int WordOp::replaceText(std::vector<std::string> marks, std::vector<std::string>
     }
     return 0;
 }
-int WordOp::replaceText(std::string mark_file, std::string replaced_text_file)
+int WordOp::replaceText(QString mark_file, QString replaced_text_file)
 {
-    std::vector<std::vector<std::string>> rep_info, mark_info;
-    std::vector<std::string> marks, reps;
+    std::vector<std::vector<QString>> rep_info, mark_info;
+    std::vector<QString> marks, reps;
     readList(mark_info, mark_file);
     readList(rep_info, replaced_text_file);
     for(int i = 0; i < mark_info.size(); ++ i)
@@ -98,52 +106,55 @@ int WordOp::replaceText(std::string mark_file, std::string replaced_text_file)
     }
     if(marks.size() != reps.size())
     {
-        std::cerr << "Items in mark file does not equal to items in replaced_text file" << std::endl;
+        qDebug() << "Items in mark file does not equal to items in replaced_text file";
         return -1;
     }
-    std::string emp = "";
+    QString emp = "";
     replaceText(marks, reps, emp);
     return 0;
 }
 
-int WordOp::replaceImage(std::vector<std::string> marks, std::vector<std::string> replace_image_paths)
+int WordOp::replaceImage(std::vector<QString> marks, std::vector<QString> replace_image_paths)
 {
     if(marks.size() != replace_image_paths.size())
     {
-        std::cerr << "count of marks does not equal to replace_image_paths" << std::endl;
+        qDebug() << "count of marks does not equal to replace_image_paths";
         return -1;
     }
     for(int i = 0; i < marks.size(); ++ i)
     {
-        std::string mark = marks[i];
-        std::string replace_image_path = replace_image_paths[i];
+        QString mark = marks[i];
+        QString replace_image_path = replace_image_paths[i];
         int mark_pos = myFind(document_xml, mark, 1);
-        QDir dir(QString::fromStdString(cache_path + "/word/media"));
+        QDir dir((cache_path + "/word/media"));
+        cv::Mat tmp_image = cv::imread(replace_image_path.toStdString());
+        int image_height = tmp_image.size().height * NORMAL_IMAGE_SIZE_TIMES;
+        int image_width = tmp_image.size().width * NORMAL_IMAGE_SIZE_TIMES;
         int rid = addImage(replace_image_path);
-        std::string img_model;
+        QString img_model;
         readXml(img_model, ":/new/xml_models/xml_models/image.xml");
-        replaceText("${ID}", std::to_string(rid), img_model);
-        replaceText("${NAME}", ("image" + std::to_string(rid)), img_model);
-        replaceText("${IMAGE_SN}", ("rId" + std::to_string(rid)), img_model);
+        replaceText("${ID}", QString::number(rid), img_model);
+        replaceText("${NAME}", ("image" + QString::number(rid)), img_model);
+        replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), img_model);
         replaceText("${H}", "align", img_model);
         replaceText("${HARG}", "center", img_model);
         replaceText("${V}", "posOffset", img_model);
         replaceText("${VARG}", "653", img_model);
-        replaceText("${CX}", "6845300", img_model);
-        replaceText("${CY}", "3822700", img_model);
+        replaceText("${CX}", QString::number(image_width), img_model);
+        replaceText("${CY}", QString::number(image_height), img_model);
 
-        while(mark_pos != std::string::npos)
+        while(mark_pos != -1)
         {
             int rep_start = findAround(document_xml, "<w:p>", mark_pos, UP);
-            if(rep_start == std::string::npos || rep_start == -1)
+            if(rep_start == -1 || rep_start == -1)
             {
-                std::cerr << "Error fail to find <w:p> around pos " << mark_pos << " using UP" << std::endl;
+                qDebug() << "Error fail to indexOf <w:p> around pos " << mark_pos << " using UP";
                 return -2;
             }
             int rep_end = findAround(document_xml, "</w:p>", mark_pos, DOWN);
-            if(rep_end == std::string::npos || rep_end == -1)
+            if(rep_end == -1 || rep_end == -1)
             {
-                std::cerr << "Error fail to find </w:p> around pos " << mark_pos << " using DOWN" << std::endl;
+                qDebug() << "Error fail to indexOf </w:p> around pos " << mark_pos << " using DOWN";
                 return -2;
             }
             rep_end += mark_pos + 6;
@@ -156,43 +167,45 @@ int WordOp::replaceImage(std::vector<std::string> marks, std::vector<std::string
     return 0;
 }
 
-int WordOp::replaceImageFromMat(std::vector<std::string> marks, std::vector<cv::Mat> replace_mat_images)
+int WordOp::replaceImageFromMat(std::vector<QString> marks, std::vector<cv::Mat> replace_mat_images)
 {
     if(marks.size() != replace_mat_images.size())
     {
-        std::cerr << "count of marks does not equal to mats" << std::endl;
+        qDebug() << "count of marks does not equal to mats";
         return -1;
     }
     for(int i = 0; i < marks.size(); ++ i)
     {
-        std::string mark = marks[i];
+        QString mark = marks[i];
         int mark_pos = myFind(document_xml, mark, 1);
-        QDir dir(QString::fromStdString(cache_path + "/word/media"));
+        QDir dir((cache_path + "/word/media"));
         int rid = addImageFromMat(replace_mat_images[i]);
 
-        std::string img_model;
+        int image_height = replace_mat_images[i].size().height * NORMAL_IMAGE_SIZE_TIMES;
+        int image_width = replace_mat_images[i].size().width * NORMAL_IMAGE_SIZE_TIMES;
+        QString img_model;
         readXml(img_model, ":/new/xml_models/xml_models/image.xml");
-        replaceText("${ID}", std::to_string(rid), img_model);
-        replaceText("${NAME}", ("image" + std::to_string(rid)), img_model);
-        replaceText("${IMAGE_SN}", ("rId" + std::to_string(rid)), img_model);
+        replaceText("${ID}", QString::number(rid), img_model);
+        replaceText("${NAME}", ("image" + QString::number(rid)), img_model);
+        replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), img_model);
         replaceText("${H}", "align", img_model);
         replaceText("${HARG}", "center", img_model);
         replaceText("${V}", "posOffset", img_model);
         replaceText("${VARG}", "653", img_model);
-        replaceText("${CX}", "6845300", img_model);
-        replaceText("${CY}", "3822700", img_model);
-        while(mark_pos != std::string::npos)
+        replaceText("${CX}", QString::number(image_width), img_model);
+        replaceText("${CY}", QString::number(image_height), img_model);
+        while(mark_pos != -1)
         {
             int rep_start = findAround(document_xml, "<w:p>", mark_pos, UP);
-            if(rep_start == std::string::npos || rep_start == -1)
+            if(rep_start == -1 || rep_start == -1)
             {
-                std::cerr << "Error fail to find <w:p> around pos " << mark_pos << " using UP" << std::endl;
+                qDebug() << "Error fail to indexOf <w:p> around pos " << mark_pos << " using UP";
                 return -2;
             }
             int rep_end = findAround(document_xml, "</w:p>", mark_pos, DOWN);
-            if(rep_end == std::string::npos || rep_end == -1)
+            if(rep_end == -1 || rep_end == -1)
             {
-                std::cerr << "Error fail to find </w:p> around pos " << mark_pos << " using DOWN" << std::endl;
+                qDebug() << "Error fail to indexOf </w:p> around pos " << mark_pos << " using DOWN";
                 return -2;
             }
             rep_end += mark_pos + 6;
@@ -205,10 +218,10 @@ int WordOp::replaceImageFromMat(std::vector<std::string> marks, std::vector<cv::
     return 0;
 }
 
-int WordOp::replaceImageFromFile(std::string mark_file_path, std::string replace_image_file_path)
+int WordOp::replaceImageFromFile(QString mark_file_path, QString replace_image_file_path)
 {
-    std::vector<std::vector<std::string>> tmp_marks, tmp_replace_image_paths;
-    std::vector<std::string> marks, replace_image_paths;
+    std::vector<std::vector<QString>> tmp_marks, tmp_replace_image_paths;
+    std::vector<QString> marks, replace_image_paths;
     readList(tmp_marks, mark_file_path);
     readList(tmp_replace_image_paths, replace_image_file_path);
     for(int i = 0; i < tmp_marks.size(); ++ i)
@@ -228,7 +241,7 @@ int WordOp::replaceImageFromFile(std::string mark_file_path, std::string replace
 
     if(replace_image_paths.size() != marks.size())
     {
-        std::cerr << "Error from replaceImageFromFile: rep_images size does not match marks" << std::endl;
+        qDebug() << "Error from replaceImageFromFile: rep_images size does not match marks";
         return -1;
     }
 
@@ -239,13 +252,13 @@ int WordOp::replaceImageFromFile(std::string mark_file_path, std::string replace
 
 int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
 {
-    std::string tmp;
+    QString tmp;
     for(int dex = indexs.size() - 1; dex >= 0; dex --)
     {
         int loop_start, loop_end, tmp_pos, index;
-        std::vector<std::string> rep_model;
-        std::vector<std::vector<std::string>> rep_info;
-        std::string rep_res;
+        std::vector<QString> rep_model;
+        std::vector<std::vector<QString>> rep_info;
+        QString rep_res;
 
         loop_start = loop_end = tmp_pos = index = 0;
         rep_model.clear();
@@ -254,33 +267,33 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
         index = indexs[dex];
 
         int pos_start = myFind(document_xml, "${LP_START}", index);
-        if(pos_start == std::string::npos)
+        if(pos_start == -1)
         {
-            std::cerr << "can not find " << index << " th loop start mark, over range";
+            qDebug() << "can not indexOf " << index << " th loop start mark, over range";
             return -2;
         }
         loop_start = findAround(document_xml, "<w:p>", pos_start, UP);
-        if(loop_start == std::string::npos || loop_start == -1) return -3;
+        if(loop_start == -1 || loop_start == -1) return -3;
         int pos_end = myFind(document_xml, "${LP_END}", index);
-        if(pos_end == std::string::npos)
+        if(pos_end == -1)
         {
-            std::cerr << "can not find " << index << " th loop end mark, over range" << std::endl;
+            qDebug() << "can not indexOf " << index << " th loop end mark, over range";
             return -3;
         }
 
         loop_end = pos_end + findAround(document_xml, "</w:p>", pos_end, DOWN);
-        if(loop_end == std::string::npos || loop_end == -1) return -3;
+        if(loop_end == -1 || loop_end == -1) return -3;
         loop_end += 6;
-        tmp = document_xml.substr(pos_start, pos_end - pos_start);
+        tmp = document_xml.mid(pos_start, pos_end - pos_start);
         pos_start = myFind(tmp, "<w:p>", 1);
         pos_end = myFind(tmp, "<w:p>", -1);
 
-        analyzeXml(rep_model, tmp.substr(pos_start, pos_end - pos_start), "w:p");
+        analyzeXml(rep_model, tmp.mid(pos_start, pos_end - pos_start), "w:p");
 
         for(int i = 0; i < infos.size(); ++ i)
         {
-            std::map<std::string, std::string> label_to_text_map = infos[i].getLabelText();
-            std::map<std::string, cv::Mat> label_to_mat_map = infos[i].getLabelImage();
+            std::map<QString, QString> label_to_text_map = infos[i].getLabelText();
+            std::map<QString, cv::Mat> label_to_mat_map = infos[i].getLabelImage();
             for(int j = 0; j < rep_model.size(); ++ j)
             {
                 st : 
@@ -289,20 +302,22 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
 
                 for(auto a : label_to_mat_map)
                 {
-                    if(tmp.find(a.first) != std::string::npos)
+                    if(tmp.indexOf(a.first) != -1)
                     {
                         tmp.clear();
                         readXml(tmp, ":/new/xml_models/xml_models/image.xml");
                         int rid = addImageFromMat(a.second);
-                        replaceText("${ID}", std::to_string(rid), tmp);
-                        replaceText("${NAME}", ("image" + std::to_string(rid)), tmp);
-                        replaceText("${IMAGE_SN}", ("rId" + std::to_string(rid)), tmp);
+                        int image_height = a.second.size().height * NORMAL_IMAGE_SIZE_TIMES;
+                        int image_width = a.second.size().width * NORMAL_IMAGE_SIZE_TIMES;
+                        replaceText("${ID}", QString::number(rid), tmp);
+                        replaceText("${NAME}", ("image" + QString::number(rid)), tmp);
+                        replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), tmp);
                         replaceText("${H}", "align", tmp);
                         replaceText("${HARG}", "center", tmp);
                         replaceText("${V}", "posOffset", tmp);
                         replaceText("${VARG}", "653", tmp);
-                        replaceText("${CX}", "6845300", tmp);
-                        replaceText("${CY}", "3822700", tmp);
+                        replaceText("${CX}", QString::number(image_width), tmp);
+                        replaceText("${CY}", QString::number(image_height), tmp);
                         rep_res.append(tmp);
                         ++ j;
                         goto st;
@@ -310,7 +325,7 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
                 }
                 for(auto a : label_to_text_map)
                 {
-                    if(tmp.find(a.first) != std::string::npos)
+                    if(tmp.indexOf(a.first) != -1)
                     {
                         replaceText(a.first, a.second, tmp);
                         rep_res.append(tmp);
@@ -331,15 +346,15 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
     return 0;
 }
 
-int WordOp::addTableRows(std::vector<int> indexs, std::vector<std::string> info_file_path)
+int WordOp::addTableRows(std::vector<int> indexs, std::vector<QString> info_file_path)
 {
-    std::string tmp;
+    QString tmp;
     for(int dex = indexs.size() - 1; dex >= 0; -- dex)
     {
         int loop_start, loop_end, tmp_pos, index;
-        std::vector<std::string> rep_model;
-        std::vector<std::vector<std::string>> rep_info;
-        std::string rep_res;
+        std::vector<QString> rep_model;
+        std::vector<std::vector<QString>> rep_info;
+        QString rep_res;
 
         loop_start = loop_end = tmp_pos = index = 0;
         rep_model.clear();
@@ -347,48 +362,47 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<std::string> info_
         rep_res.clear();
         index = indexs[dex];
         readList(rep_info, info_file_path[dex]);
-        std::cout << "fpath: " << info_file_path[dex] << std::endl;
         int pos_start = myFind(document_xml, "${TB_START}", index);
-        if(pos_start == std::string::npos)
+        if(pos_start == -1)
         {
-            std::cerr << "The " << index << "th TB_START not found" << std::endl;
+            qDebug() << "The " << index << "th TB_START not found";
             return -1;
         }
         loop_start = findAround(document_xml, "<w:tr>", pos_start, UP);
-        if(loop_start == std::string::npos || loop_start == -1)
+        if(loop_start == -1 || loop_start == -1)
         {
-            std::cerr << "The " << index << "th loop_start not found" << std::endl;
+            qDebug() << "The " << index << "th loop_start not found";
             return -2;
         }
 
         int pos_end = myFind(document_xml, "${TB_END}", index);
-        if(pos_end == std::string::npos)
+        if(pos_end == -1)
         {
-            std::cerr << "The " << index << "th TB_END not found" << std::endl;
+            qDebug() << "The " << index << "th TB_END not found";
             return -1;
         }
         loop_end = findAround(document_xml, "</w:tr>", pos_end, DOWN);
-        if(loop_end == std::string::npos || loop_end == -1)
+        if(loop_end == -1 || loop_end == -1)
         {
-            std::cerr << "The " << index << "th loop_end not found" << std::endl;
+            qDebug() << "The " << index << "th loop_end not found";
             return -2;
         }
         loop_end += 7 + pos_end;
-        tmp = document_xml.substr(pos_start, pos_end - pos_start);
+        tmp = document_xml.mid(pos_start, pos_end - pos_start);
         pos_start = myFind(tmp, "<w:tr>", 1);
         pos_end = myFind(tmp, "<w:tr>", -1);
 
-        analyzeXml(rep_model, tmp.substr(pos_start, pos_end - pos_start), "w:tr");
+        analyzeXml(rep_model, tmp.mid(pos_start, pos_end - pos_start), "w:tr");
 
         for(int i = 0; i < rep_info.size(); ++ i)
         {
-            std::vector<std::string> tmp_rep_model = rep_model;
+            std::vector<QString> tmp_rep_model = rep_model;
             for(int j = 0; j < rep_info[i].size(); ++ j)
             {
-                std::string rep_mark = "${TB_ARG" + std::to_string(j + 1) + "}";
+                QString rep_mark = "${TB_ARG" + QString::number(j + 1) + "}";
                 for(int k = 0; k < tmp_rep_model.size(); ++ k)
                 {
-                    if(rep_model[k].find(rep_mark) != std::string::npos)
+                    if(rep_model[k].indexOf(rep_mark) != -1)
                     {
                         replaceText(rep_mark, rep_info[i][j], tmp_rep_model[k]);
                     }
@@ -404,81 +418,84 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<std::string> info_
 
 int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
 {
-    std::string tmp;
+    QString tmp;
     for(int dex = indexs.size() - 1; dex >= 0; -- dex)
     {
         int loop_start, loop_end, tmp_pos, index;
-        std::vector<std::string> rep_model;
-        std::vector<std::vector<std::string>> rep_info;
-        std::string rep_res;
+        std::vector<QString> rep_model;
+        std::vector<std::vector<QString>> rep_info;
+        QString rep_res;
 
         loop_start = loop_end = tmp_pos = index = 0;
         rep_model.clear();
         rep_res.clear();
         index = indexs[dex];
         int pos_start = myFind(document_xml, "${TB_START}", index);
-        if(pos_start == std::string::npos)
+        if(pos_start == -1)
         {
-            std::cerr << "The " << index << "th TB_START not found" << std::endl;
+            qDebug() << "The " << index << "th TB_START not found";
             return -1;
         }
         loop_start = findAround(document_xml, "<w:tr>", pos_start, UP);
-        if(loop_start == std::string::npos || loop_start == -1)
+        if(loop_start == -1 || loop_start == -1)
         {
-            std::cerr << "The " << index << "th loop_start not found" << std::endl;
+            qDebug() << "The " << index << "th loop_start not found";
             return -2;
         }
 
         int pos_end = myFind(document_xml, "${TB_END}", index);
-        if(pos_end == std::string::npos)
+        if(pos_end == -1)
         {
-            std::cerr << "The " << index << "th TB_END not found" << std::endl;
+            qDebug() << "The " << index << "th TB_END not found";
             return -1;
         }
         loop_end = findAround(document_xml, "</w:tr>", pos_end, DOWN);
-        if(loop_end == std::string::npos || loop_end == -1)
+        if(loop_end == -1 || loop_end == -1)
         {
-            std::cerr << "The " << index << "th loop_end not found" << std::endl;
+            qDebug() << "The " << index << "th loop_end not found";
             return -2;
         }
         loop_end += 7 + pos_end;
-        tmp = document_xml.substr(pos_start, pos_end - pos_start);
+        tmp = document_xml.mid(pos_start, pos_end - pos_start);
         pos_start = myFind(tmp, "<w:tr>", 1);
         pos_end = myFind(tmp, "<w:tr>", -1);
 
-        analyzeXml(rep_model, tmp.substr(pos_start, pos_end - pos_start), "w:tr");
+        analyzeXml(rep_model, tmp.mid(pos_start, pos_end - pos_start), "w:tr");
         for(int i = 0; i < infos.size(); ++ i)
         {
-            std::map<std::string, std::string> label_to_text_map = infos[i].getLabelText();
-            std::map<std::string, cv::Mat> label_to_mat_map = infos[i].getLabelImage();
+            std::map<QString, QString> label_to_text_map = infos[i].getLabelText();
+            std::map<QString, cv::Mat> label_to_mat_map = infos[i].getLabelImage();
             for(int j = 0; j < rep_model.size(); ++ j)
             {
                 tmp = rep_model[j];
                 for(auto a : label_to_mat_map)
                 {
-                    tmp_pos = tmp.find(a.first);
-                    if(tmp_pos != std::string::npos)
+                    tmp_pos = tmp.indexOf(a.first);
+                    if(tmp_pos != -1)
                     {                        
                         int p1 = findAround(tmp, "<w:p>", tmp_pos, UP);
                         int p2 = tmp_pos + findAround(tmp, "</w:p>", tmp_pos, DOWN);
-                        std::string image_model;
+                        QString image_model;
                         readXml(image_model, ":/new/xml_models/xml_models/image.xml");
                         tmp.replace(p1, p2 - p1 + 6, image_model);
                         int rid = addImageFromMat(a.second);
-                        replaceText("${ID}", std::to_string(rid), tmp);
-                        replaceText("${NAME}", ("image" + std::to_string(rid)), tmp);
-                        replaceText("${IMAGE_SN}", ("rId" + std::to_string(rid)), tmp);
+                        int image_height = a.second.size().height * TABLE_IMAGE_SIZE_TIMES;
+                        int image_width = a.second.size().width * TABLE_IMAGE_SIZE_TIMES;
+
+                        replaceText("${ID}", QString::number(rid), tmp);
+                        replaceText("${NAME}", ("image" + QString::number(rid)), tmp);
+                        replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), tmp);
                         replaceText("${H}", "align", tmp);
                         replaceText("${HARG}", "center", tmp);
                         replaceText("${V}", "posOffset", tmp);
                         replaceText("${VARG}", "653", tmp);
-                        replaceText("${CX}", "690000", tmp);
-                        replaceText("${CY}", "390000", tmp);
+                        replaceText("${CX}", QString::number(image_width), tmp);
+                        replaceText("${CY}", QString::number(image_height), tmp);
                     }
                 }
                 for(auto a : label_to_text_map)
                 {
-                    if(tmp.find(a.first) != std::string::npos)
+                    if(tmp.indexOf(a.first) != -1)
                     {
                         replaceText(a.first, a.second, tmp);
                     }
@@ -493,15 +510,15 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
     return 0;
 }
 
-void WordOp::readXml(std::string &xml_file, std::string filepath)
+void WordOp::readXml(QString &xml_file, QString filepath)
 {
     xml_file.clear();
-    QFile file(QString::fromStdString(filepath));
+    QFile file((filepath));
     QString res;
     file.open(QIODevice::ReadOnly);
     if(!file.isOpen())
     {
-        std::cerr << "Error: Could not open file: " << filepath << std::endl;
+        qDebug() << "Error: Could not open file: " << filepath;
         return;
     }
     while(!file.atEnd())
@@ -509,35 +526,35 @@ void WordOp::readXml(std::string &xml_file, std::string filepath)
         QString tmp_res = file.readLine();
         res.append(tmp_res);
     }
-    xml_file = res.toStdString();
+    xml_file = res;
 
     file.close();
 }
 
-void WordOp::readList(std::vector<std::vector<std::string>> &str_list, std::string filepath)
+void WordOp::readList(std::vector<std::vector<QString>> &str_list, QString filepath)
 {
 
-    QFile file(QString::fromStdString(filepath));
+    QFile file((filepath));
     file.open(QIODevice::ReadOnly);
     if(!file.isOpen())
     {
-        std::cerr << "Error: Could not open file: " << filepath << std::endl;
+        qDebug() << "Error: Could not open file: " << filepath;
         return;
     }
-    std::vector<std::string> tmp_vec;
+    std::vector<QString> tmp_vec;
     while(!file.atEnd())
     {
         QString tmp_line = file.readLine();
         if(tmp_line != "\n")
         {
-            tmp_vec.push_back(tmp_line.toStdString());
-            tmp_vec.back().pop_back();
+            tmp_line.remove(tmp_line.length() - 1, 1);
+            tmp_vec.push_back(tmp_line);
         }
         else
         {
             for(auto a : tmp_vec)
             {
-                if(!a.empty())
+                if(!a.isEmpty())
                 {
                     str_list.push_back(tmp_vec);
                     break;
@@ -549,7 +566,7 @@ void WordOp::readList(std::vector<std::vector<std::string>> &str_list, std::stri
 
     for(auto a : tmp_vec)
     {
-        if(!a.empty())
+        if(!a.isEmpty())
         {
             str_list.push_back(tmp_vec);
             break;
@@ -560,100 +577,96 @@ void WordOp::readList(std::vector<std::vector<std::string>> &str_list, std::stri
     return;
 }
 
-int WordOp::myFind(std::string src, std::string des, int index)
+int WordOp::myFind(QString src, QString des, int index)
 {
     int _index = 1;
     int pos = 0;
-    pos = src.find(des);
+    pos = src.indexOf(des);
     if(index == -1)
     {
-        while(true)
-        {
-            int tmp_pos = src.find(des, pos + 1);
-            if(tmp_pos != std::string::npos) pos = tmp_pos;
-            else return pos;
-        }
+        pos = src.lastIndexOf(des);
+        return pos;
     }
     while(_index != index)
     {
-        pos = src.find(des, pos + 1);
+        pos = src.indexOf(des, pos + 1);
         ++ _index;
-        if(pos == std::string::npos) break;
+        if(pos == -1) break;
     }
     return pos;
 }
 
-int WordOp::findAround(std::string src, std::string des, int cur_pos, int direction)
+int WordOp::findAround(QString src, QString des, int cur_pos, int direction)
 {
-    std::string tmp;
+    QString tmp;
     int ret;
     if(direction == UP)
     {
-        tmp = src.substr(0, cur_pos);
+        tmp = src.mid(0, cur_pos);
         ret = myFind(tmp, des, -1);
     }
     else if(direction == DOWN)
     {
-        tmp = src.substr(cur_pos);
+        tmp = src.mid(cur_pos);
         ret = myFind(tmp, des, 1);
     }
     else
     {
         ret = -1;
-        std::cerr << "findAround argument error" << std::endl;
+        qDebug() << "findAround argument error";
     }
 
     return ret;
 }
 
-void WordOp::analyzeXml(std::vector<std::string> &analysis_xml, std::string origin_xml, std::string flag)
+void WordOp::analyzeXml(std::vector<QString> &analysis_xml, QString origin_xml, QString flag)
 {
     analysis_xml.clear();
     int pos_start, pos_end, index = 1;
     pos_start = myFind(origin_xml, ("<" + flag + ">"), index);
     pos_end = myFind(origin_xml, ("</" + flag + ">"), index);
-    while(pos_start != std::string::npos)
+    while(pos_start != -1)
     {
-        analysis_xml.push_back(origin_xml.substr(pos_start, pos_end + ("</" + flag + ">").size() - pos_start));
+        analysis_xml.push_back(origin_xml.mid(pos_start, pos_end + ("</" + flag + ">").size() - pos_start));
         ++index;
         pos_start = myFind(origin_xml, ("<" + flag + ">"), index);
         pos_end = myFind(origin_xml, ("</" + flag + ">"), index);
     }
 }
 
-void WordOp::writeXml(std::string &xml_file, std::string filepath)
+void WordOp::writeXml(QString &xml_file, QString filepath)
 {
-	QFile file(QString::fromStdString(filepath));
+	QFile file((filepath));
 	file.open(QIODevice::WriteOnly);
-	file.write(xml_file.c_str());
+	file.write(xml_file.toUtf8());
 	file.close();
 }
 
-int WordOp::addImage(std::string replace_image_path)
+int WordOp::addImage(QString replace_image_path)
 {
-    QDir tempdir(QString::fromStdString(cache_path + "/word/media"));
+    QDir tempdir((cache_path + "/word/media"));
     int image_sn = tempdir.count() - 2;    
-    std::string mark = ("image" + std::to_string((image_sn + 1)));
+    QString mark = ("image" + QString::number((image_sn + 1)));
     QFile f_mark, f_image;
     int rId_sn = 1;
-	QDir tmp_dir(QString::fromStdString(cache_path + "/word/media/"));
-	if(!tmp_dir.exists()) tmp_dir.mkpath(QString::fromStdString(cache_path + "/word/media/"));
+	QDir tmp_dir((cache_path + "/word/media/"));
+	if(!tmp_dir.exists()) tmp_dir.mkpath((cache_path + "/word/media/"));
 
     mark += ".png";
     readXml(doc_rels_xml, (cache_path + "/word/_rels/document.xml.rels"));
     int pos;
     while(true)
     {
-        pos = doc_rels_xml.find(("rId" + std::to_string(rId_sn)));
-        if(pos == std::string::npos)
+        pos = doc_rels_xml.indexOf(("rId" + QString::number(rId_sn)));
+        if(pos == -1)
         {
-            std::string new_image_rels = image_rels;
-            pos = new_image_rels.find("${rId}");
-            new_image_rels.replace(pos, 6, ("rId" + std::to_string(rId_sn)));
-            pos = new_image_rels.find("${target}");
+            QString new_image_rels = image_rels;
+            pos = new_image_rels.indexOf("${rId}");
+            new_image_rels.replace(pos, 6, ("rId" + QString::number(rId_sn)));
+            pos = new_image_rels.indexOf("${target}");
             new_image_rels.replace(pos, 9, ("media/" + mark));
 
-            pos = doc_rels_xml.find("</Relationships>");
+            pos = doc_rels_xml.indexOf("</Relationships>");
             doc_rels_xml.replace(pos, 16, new_image_rels + "</Relationships>\n");
 
             writeXml(doc_rels_xml, (cache_path + "/word/_rels/document.xml.rels"));
@@ -662,14 +675,14 @@ int WordOp::addImage(std::string replace_image_path)
         ++ rId_sn;
     }
 
-	if (!QFile::exists(QString::fromStdString(replace_image_path)))
+	if (!QFile::exists((replace_image_path)))
 	{
-		std::cerr << "Error can not open image " << replace_image_path << std::endl;
+		qDebug() << "Error can not open image " << replace_image_path;
 		return -1;
 	}
 
-	f_mark.setFileName(QString::fromStdString(cache_path + "/word/media/" + mark));
-	f_image.setFileName(QString::fromStdString(replace_image_path));
+	f_mark.setFileName((cache_path + "/word/media/" + mark));
+	f_image.setFileName((replace_image_path));
     f_mark.open(QIODevice::ReadWrite);
 	f_image.open(QIODevice::ReadWrite);
     
@@ -683,28 +696,28 @@ int WordOp::addImage(std::string replace_image_path)
 
 int WordOp::addImageFromMat(cv::Mat replace_mat_image)
 {
-    QDir tempdir(QString::fromStdString(cache_path + "/word/media"));
+    QDir tempdir((cache_path + "/word/media"));
     int image_sn = tempdir.count() - 2;    
-    std::string mark = ("image" + std::to_string((image_sn + 1)));
+    QString mark = ("image" + QString::number((image_sn + 1)));
     int rId_sn = 1;
-	QDir tmp_dir(QString::fromStdString(cache_path + "/word/media/"));
-	if(!tmp_dir.exists()) tmp_dir.mkpath(QString::fromStdString(cache_path + "/word/media/"));
+	QDir tmp_dir((cache_path + "/word/media/"));
+	if(!tmp_dir.exists()) tmp_dir.mkpath((cache_path + "/word/media/"));
 
     mark += ".png";
     readXml(doc_rels_xml, (cache_path + "/word/_rels/document.xml.rels"));
     int pos;
     while(true)
     {
-        pos = doc_rels_xml.find(("rId" + std::to_string(rId_sn)));
-        if(pos == std::string::npos)
+        pos = doc_rels_xml.indexOf(("rId" + QString::number(rId_sn)));
+        if(pos == -1)
         {
-            std::string new_image_rels = image_rels;
-            pos = new_image_rels.find("${rId}");
-            new_image_rels.replace(pos, 6, ("rId" + std::to_string(rId_sn)));
-            pos = new_image_rels.find("${target}");
+            QString new_image_rels = image_rels;
+            pos = new_image_rels.indexOf("${rId}");
+            new_image_rels.replace(pos, 6, ("rId" + QString::number(rId_sn)));
+            pos = new_image_rels.indexOf("${target}");
             new_image_rels.replace(pos, 9, ("media/" + mark));
 
-            pos = doc_rels_xml.find("</Relationships>");
+            pos = doc_rels_xml.indexOf("</Relationships>");
             doc_rels_xml.replace(pos, 16, new_image_rels + "</Relationships>\n");
 
             writeXml(doc_rels_xml, (cache_path + "/word/_rels/document.xml.rels"));
@@ -715,14 +728,14 @@ int WordOp::addImageFromMat(cv::Mat replace_mat_image)
 
 	if (replace_mat_image.empty())
 	{
-		std::cerr << "Error replace_mat_image is empty " << std::endl;
+		qDebug() << "Error replace_mat_image is isEmpty ";
 		return -1;
 	}
 
-    bool ret = cv::imwrite((cache_path + "/word/media/" + mark), replace_mat_image);
+    bool ret = cv::imwrite((cache_path + "/word/media/" + mark).toStdString(), replace_mat_image);
     if(ret == false)
     {
-        std::cout << "Fail to write replace_mat_image to " << (cache_path + "/word/media/" + mark) << std::endl;
+        qDebug() << "Fail to write replace_mat_image to " << (cache_path + "/word/media/" + mark);
         return -2;
     }
     else return rId_sn;

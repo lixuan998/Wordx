@@ -18,6 +18,7 @@ Function List:
 
 #include "zipper.h"
 #include "unzipper.h"
+#include <QString>
 #include <string.h>
 #include <string>
 #include <assert.h>
@@ -34,17 +35,17 @@ class FileOp{
     public:
         FileOp();
         ~FileOp();
-        void static zipFolder(const std::string ziped_path);
+        void static zipFolder(const QString ziped_path);
 
-        std::string static unzipFolder(const std::string unziped_path);
+        QString static unzipFolder(const QString unziped_path);
 
-        void static dirIterate(std::string dir_path, void(*operation)(std::string, void *, int ), void *arg, int flag);
+        void static dirIterate(QString dir_path, void(*operation)(QString, void *, int ), void *arg, int flag);
 
-        void static deleteCache(std::string cache_path);
+        void static deleteCache(QString cache_path);
 
     private:
 
-        void static dirZiper(std::string path, void *arg, int flag);
+        void static dirZiper(QString path, void *arg, int flag);
     private:
 
 };
