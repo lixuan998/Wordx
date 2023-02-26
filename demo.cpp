@@ -63,11 +63,8 @@ void how_to_replace_text(WordOp &op)
     QString rep_str = "";
     //第一个参数为vector<string>类型，表示自定义的标签集合
     //第一个参数为vector<string>类型，表示自定义的文本集合
-    //第三个参数如果不为空，则本函数将在 rep_str 中进行替换操作, 
     //标签集合和文本集合里的元素是一一对应的
-    //若为空，则默认为替换word文档中对应的 document.xml 中的内容
-    //不可使用 replaceText(marks, replace_with, "") 这种写法
-    op.replaceText(marks, replace_with, rep_str);
+    op.replaceText(marks, replace_with);
 }
 
 void how_to_replace_images_given_by_mat(WordOp &op)
