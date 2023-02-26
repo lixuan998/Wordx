@@ -8,6 +8,10 @@ Description:  A function implementation of fileop.h
 
 #include "fileop.h"
 
+/*---------------
+Public Functions
+---------------*/
+
 FileOp::FileOp()
 {
    std::cout << "A FileOp instance has been created" << std::endl;
@@ -59,6 +63,10 @@ void FileOp::deleteCache(QString cache_path)
     QDir tmp_dir(cache_path);
     tmp_dir.removeRecursively();
 }
+
+/*---------------
+Private Functions
+---------------*/
 
 void FileOp::dirZiper(QString path, void *arg, int flag)
 {

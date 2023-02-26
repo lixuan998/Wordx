@@ -1,5 +1,9 @@
 #include "info.h"
 
+/*---------------
+Public Functions
+---------------*/
+
 Info::Info()
 {
     //std::cout << "an instance of Info has been created" << std::endl;

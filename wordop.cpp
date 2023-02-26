@@ -2,6 +2,11 @@
 
 QString WordOp::line_feed_head = "</w:t></w:r></w:p><w:p><w:r>";
 QString WordOp::line_feed_tail = "<w:t>";
+
+/*---------------
+Public Functions
+---------------*/
+
 WordOp::WordOp(QString filepath)
 {
     cache_path = "";
@@ -31,6 +36,7 @@ void WordOp::close()
     cache_path.clear();
     filepath.clear();
 }
+
 int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
 {
     if(rep_str == "")
@@ -63,6 +69,7 @@ int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
     }
     return 0;
 }
+
 int WordOp::replaceText(std::vector<QString> marks, std::vector<QString> replaced_texts)
 {
     QString rep_str = "";
@@ -82,6 +89,7 @@ int WordOp::replaceText(std::vector<QString> marks, std::vector<QString> replace
     }
     return 0;
 }
+
 int WordOp::replaceText(QString mark_file, QString replaced_text_file)
 {
     std::vector<std::vector<QString>> rep_info, mark_info;
@@ -430,6 +438,10 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
 
     return 0;
 }
+
+/*---------------
+Private Functions
+---------------*/
 
 void WordOp::readXml(QString &xml_file, QString filepath)
 {

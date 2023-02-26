@@ -17,7 +17,7 @@ void how_to_add_table_rows(WordOp &op);
 
 //demo 的运行方法：
 // ./wordx <模板文件路径>
-//如： ./wordx ./standard_model.docx
+//如： ./wordx ../standard_model.docx
 
 int main(int argc, char **argv)
 {
