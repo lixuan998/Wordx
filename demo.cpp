@@ -15,9 +15,11 @@ void how_to_add_informations_recursively(WordOp &op);
 //该函数演示了如何循环插入表格
 void how_to_add_table_rows(WordOp &op);
 
-//demo 的运行方法：
-// ./wordx <模板文件路径>
-//如： ./wordx ../standard_model.docx
+/*-----------------------------------
+| demo 的运行方法：                   |
+| ./wordx <模板文件路径>              |
+| 如： ./wordx ../standard_model.docx|
+-----------------------------------*/
 
 int main(int argc, char **argv)
 {
@@ -61,9 +63,11 @@ void how_to_replace_text(WordOp &op)
                                           "污渍"};
 
     QString rep_str = "";
-    //第一个参数为vector<string>类型，表示自定义的标签集合
-    //第一个参数为vector<string>类型，表示自定义的文本集合
-    //标签集合和文本集合里的元素是一一对应的
+    /*----------------------------------------------
+    | 第一个参数为vector<string>类型，表示自定义的标签集合|
+    | 第一个参数为vector<string>类型，表示自定义的文本集合|
+    | 标签集合和文本集合里的元素是一一对应的              |
+    ----------------------------------------------*/
     op.replaceText(marks, replace_with);
 }
 
@@ -72,9 +76,11 @@ void how_to_replace_images_given_by_mat(WordOp &op)
     std::vector<QString> marks{"${ST_UP_SURFACE}"};
     std::vector<cv::Mat> replace_mat_images{cv::imread("./demo_files/steel1.jpeg")};
 
-    //第一个参数为vector<string>类型，表示自定义的标签集合
-    //第二个参数为vector<Mat>类型，表示需要替换上去的图片集合
-    //标签集合和图片集合里的元素是一一对应的
+    /*---------------------------------------------------
+    | 第一个参数为vector<string>类型，表示自定义的标签集合     |
+    | 第二个参数为vector<Mat>类型，表示需要替换上去的图片集合   |
+    | 标签集合和图片集合里的元素是一一对应的                   |
+    ---------------------------------------------------*/
     op.replaceImageFromMat(marks, replace_mat_images);
 }
 
@@ -83,9 +89,11 @@ void how_to_replace_images_given_by_path(WordOp &op)
     std::vector<QString> marks{"${ST_DOWN_SURFACE}"};
     std::vector<QString> replace_image_pathes{"./demo_files/steel2.jpeg"};
 
-    //第一个参数为vector<string>类型，表示自定义的标签集合
-    //第二个参数为vector<string>类型，表示需要替换上去的图片路径集合
-    //标签集合和图片路径集合里的元素是一一对应的
+    /*-------------------------------------------------------
+    | 第一个参数为vector<string>类型，表示自定义的标签集合         |
+    | 第二个参数为vector<string>类型，表示需要替换上去的图片路径集合 |
+    | 标签集合和图片路径集合里的元素是一一对应的                    |
+    -------------------------------------------------------*/
     op.replaceImage(marks, replace_image_pathes);
 }
 
@@ -96,20 +104,23 @@ void how_to_add_informations_recursively(WordOp &op)
     QString xs[]{"10", "20", "30", "40", "50"};
     QString ys[]{"1000", "2000", "3000", "4000", "5000"};
     QString sns[]{"1", "2", "3", "4", "5"};
-
-    //此处的Info为我定义的类
-    //Info类包含了将要被替换的文本或图片的信息
-    //Info类主要由两个map构成
-    //一个是标签到替换文本的map
-    //一个是标签到替换图片的map
+    /*-----------------------------------
+    | 此处的Info为我定义的类               |
+    | Info类包含了将要被替换的文本或图片的信息|
+    | Info类主要由两个map构成              |
+    | 一个是标签到替换文本的map             |
+    | 一个是标签到替换图片的map             |
+    -----------------------------------*/
     Info info;
     std::vector<Info> rec_infos;
     std::vector<int> rec_indexes{1, 2};
     for(int i = 0; i < 5; ++ i)
     {
-        //Info类使用clear()函数清空
-        //Info类的addInfo方法向Info类实例中添加 “标签-文本” 或 “标签-图片” 的键值对
-        //其中图片以cv::Mat的形式
+        /*-----------------------------------------------------------------
+        | Info类使用clear()函数清空                                          |
+        | Info类的addInfo方法向Info类实例中添加 “标签-文本” 或 “标签-图片” 的键值对|
+        | 其中图片以cv::Mat的形式                                             |
+        ------------------------------------------------------------------*/
         info.clear();
         info.addInfo("${LP_SN}", sns[i]);
         info.addInfo("${LP_DEFECT}", defects[i]);
@@ -119,9 +130,11 @@ void how_to_add_informations_recursively(WordOp &op)
         info.addInfo("${LP_IMAGE}", cv::imread("./demo_files/steel1.jpeg"));
         rec_infos.push_back(info);
     }
-    //考虑到一个模板中可能存在n个循环体，所以第一个参数为一个vector<int>类型，表示需要被替换的循环体， 计数从1开始
-    //第二个参数为vector<Info>类型， 表示替换的图片和文本信息
-    //注意，如果要同时替换多个循环体，则这两个循环体的标签集应相同
+    /*---------------------------------------------------------------------------------------------
+    | 考虑到一个模板中可能存在n个循环体，所以第一个参数为一个vector<int>类型，表示需要被替换的循环体， 计数从1开始|
+    | 第二个参数为vector<Info>类型， 表示替换的图片和文本信息                                            |
+    | 注意，如果要同时替换多个循环体，则这两个循环体的标签集应相同                                          |
+    ---------------------------------------------------------------------------------------------*/
     op.addInfoRecursive(rec_indexes, rec_infos);
 }
 
@@ -145,10 +158,11 @@ void how_to_add_table_rows(WordOp &op)
         info.addInfo("${TB_ARG4}", cv::imread("./demo_files/steel1.jpeg"));
         table_infos.push_back(info);
     }
-
-    //考虑到一个模板中可能存在n个待插入表格，所以第一个参数为一个vector<int>类型，表示需要被循环插入的表格， 计数从1开始
-    //若需同时插入k个表格，则第一个参数中的下标集顺序应为从后往前，例如要替换插入第一个和第二个表格，则参数中的顺序为 "2， 1"
-    //第二个参数为vector<Info>类型， 表示替换的图片和文本信息
-    //注意，如果要同时替换插入多个表格，则这两个表格的标签集应相同
+    /*-----------------------------------------------------------------------------------------------------
+    | 考虑到一个模板中可能存在n个待插入表格，所以第一个参数为一个vector<int>类型，表示需要被循环插入的表格， 计数从1开始   |
+    | 若需同时插入k个表格，则第一个参数中的下标集顺序应为从后往前，例如要替换插入第一个和第二个表格，则参数中的顺序为 "2， 1"|
+    | 第二个参数为vector<Info>类型， 表示替换的图片和文本信息                                                    |
+    | 注意，如果要同时替换插入多个表格，则这两个表格的标签集应相同                                                  |
+    ----------------------------------------------------------------------------------------------------*/                                                
     op.addTableRows(table_indexes, table_infos);
 }
