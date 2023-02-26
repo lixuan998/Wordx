@@ -17,7 +17,7 @@ void how_to_add_table_rows(WordOp &op);
 
 //demo 的运行方法：
 // ./wordx <模板文件路径>
-//如： ./wordx ../standard_model.docx
+//如： ./wordx ./standard_model.docx
 
 int main(int argc, char **argv)
 {
@@ -73,7 +73,7 @@ void how_to_replace_text(WordOp &op)
 void how_to_replace_images_given_by_mat(WordOp &op)
 {
     std::vector<QString> marks{"${ST_UP_SURFACE}"};
-    std::vector<cv::Mat> replace_mat_images{cv::imread("../demo_files/steel1.jpeg")};
+    std::vector<cv::Mat> replace_mat_images{cv::imread("./demo_files/steel1.jpeg")};
 
     //第一个参数为vector<string>类型，表示自定义的标签集合
     //第二个参数为vector<Mat>类型，表示需要替换上去的图片集合
@@ -84,7 +84,7 @@ void how_to_replace_images_given_by_mat(WordOp &op)
 void how_to_replace_images_given_by_path(WordOp &op)
 {
     std::vector<QString> marks{"${ST_DOWN_SURFACE}"};
-    std::vector<QString> replace_image_pathes{"../demo_files/steel2.jpeg"};
+    std::vector<QString> replace_image_pathes{"./demo_files/steel2.jpeg"};
 
     //第一个参数为vector<string>类型，表示自定义的标签集合
     //第二个参数为vector<string>类型，表示需要替换上去的图片路径集合
@@ -119,7 +119,7 @@ void how_to_add_informations_recursively(WordOp &op)
         info.addInfo("${LP_SURFACE}", surfaces[i]);
         info.addInfo("${LP_X}", xs[i]);
         info.addInfo("${LP_Y}", ys[i]);
-        info.addInfo("${LP_IMAGE}", cv::imread("../demo_files/steel1.jpeg"));
+        info.addInfo("${LP_IMAGE}", cv::imread("./demo_files/steel1.jpeg"));
         rec_infos.push_back(info);
     }
     //考虑到一个模板中可能存在n个循环体，所以第一个参数为一个vector<int>类型，表示需要被替换的循环体， 计数从1开始
@@ -145,7 +145,7 @@ void how_to_add_table_rows(WordOp &op)
         info.addInfo("${TB_ARG1}", arg1[i]);
         info.addInfo("${TB_ARG2}", arg2[i]);
         info.addInfo("${TB_ARG3}", arg3[i]);
-        info.addInfo("${TB_ARG4}", cv::imread("../demo_files/steel1.jpeg"));
+        info.addInfo("${TB_ARG4}", cv::imread("./demo_files/steel1.jpeg"));
         table_infos.push_back(info);
     }
 

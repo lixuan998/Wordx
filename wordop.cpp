@@ -59,15 +59,7 @@ int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
 
         QString tmp = rep_str.mid(p1, p2 + 6 - p1);
 
-        std::vector<QString> ana;
-
-        analyzeXml(ana, tmp, "w:p");
-
-        int pos = -1;
-        while((pos = rep_str.indexOf(mark, pos + 1)) != -1)
-        {
-            rep_str.replace(pos, mark.length(), replaced_text);
-        }
+        rep_str.replace(mark, replaced_text);
     }
     return 0;
 }
@@ -132,7 +124,7 @@ int WordOp::replaceImage(std::vector<QString> marks, std::vector<QString> replac
         int image_width = tmp_image.size().width * NORMAL_IMAGE_SIZE_TIMES;
         int rid = addImage(replace_image_path);
         QString img_model;
-        readXml(img_model, ":/new/xml_models/xml_models/image.xml");
+        readXml(img_model, IMAGE_MODEL_PATH);
         replaceText("${ID}", QString::number(rid), img_model);
         replaceText("${NAME}", ("image" + QString::number(rid)), img_model);
         replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), img_model);
@@ -163,7 +155,6 @@ int WordOp::replaceImage(std::vector<QString> marks, std::vector<QString> replac
             mark_pos = myFind(document_xml, mark, 1);
         }
     }
-    
     return 0;
 }
 
@@ -184,7 +175,7 @@ int WordOp::replaceImageFromMat(std::vector<QString> marks, std::vector<cv::Mat>
         int image_height = replace_mat_images[i].size().height * NORMAL_IMAGE_SIZE_TIMES;
         int image_width = replace_mat_images[i].size().width * NORMAL_IMAGE_SIZE_TIMES;
         QString img_model;
-        readXml(img_model, ":/new/xml_models/xml_models/image.xml");
+        readXml(img_model, IMAGE_MODEL_PATH);
         replaceText("${ID}", QString::number(rid), img_model);
         replaceText("${NAME}", ("image" + QString::number(rid)), img_model);
         replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), img_model);
@@ -266,7 +257,7 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
         rep_res.clear();
         index = indexs[dex];
 
-        int pos_start = myFind(document_xml, "${LP_START}", index);
+        int pos_start = myFind(document_xml, LP_START_MARK, index);
         if(pos_start == -1)
         {
             qDebug() << "can not indexOf " << index << " th loop start mark, over range";
@@ -274,7 +265,7 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
         }
         loop_start = findAround(document_xml, "<w:p>", pos_start, UP);
         if(loop_start == -1 || loop_start == -1) return -3;
-        int pos_end = myFind(document_xml, "${LP_END}", index);
+        int pos_end = myFind(document_xml, LP_END_MARK, index);
         if(pos_end == -1)
         {
             qDebug() << "can not indexOf " << index << " th loop end mark, over range";
@@ -305,7 +296,7 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
                     if(tmp.indexOf(a.first) != -1)
                     {
                         tmp.clear();
-                        readXml(tmp, ":/new/xml_models/xml_models/image.xml");
+                        readXml(tmp, IMAGE_MODEL_PATH);
                         int rid = addImageFromMat(a.second);
                         int image_height = a.second.size().height * NORMAL_IMAGE_SIZE_TIMES;
                         int image_width = a.second.size().width * NORMAL_IMAGE_SIZE_TIMES;
@@ -346,76 +337,6 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
     return 0;
 }
 
-int WordOp::addTableRows(std::vector<int> indexs, std::vector<QString> info_file_path)
-{
-    QString tmp;
-    for(int dex = indexs.size() - 1; dex >= 0; -- dex)
-    {
-        int loop_start, loop_end, tmp_pos, index;
-        std::vector<QString> rep_model;
-        std::vector<std::vector<QString>> rep_info;
-        QString rep_res;
-
-        loop_start = loop_end = tmp_pos = index = 0;
-        rep_model.clear();
-        rep_info.clear();
-        rep_res.clear();
-        index = indexs[dex];
-        readList(rep_info, info_file_path[dex]);
-        int pos_start = myFind(document_xml, "${TB_START}", index);
-        if(pos_start == -1)
-        {
-            qDebug() << "The " << index << "th TB_START not found";
-            return -1;
-        }
-        loop_start = findAround(document_xml, "<w:tr>", pos_start, UP);
-        if(loop_start == -1 || loop_start == -1)
-        {
-            qDebug() << "The " << index << "th loop_start not found";
-            return -2;
-        }
-
-        int pos_end = myFind(document_xml, "${TB_END}", index);
-        if(pos_end == -1)
-        {
-            qDebug() << "The " << index << "th TB_END not found";
-            return -1;
-        }
-        loop_end = findAround(document_xml, "</w:tr>", pos_end, DOWN);
-        if(loop_end == -1 || loop_end == -1)
-        {
-            qDebug() << "The " << index << "th loop_end not found";
-            return -2;
-        }
-        loop_end += 7 + pos_end;
-        tmp = document_xml.mid(pos_start, pos_end - pos_start);
-        pos_start = myFind(tmp, "<w:tr>", 1);
-        pos_end = myFind(tmp, "<w:tr>", -1);
-
-        analyzeXml(rep_model, tmp.mid(pos_start, pos_end - pos_start), "w:tr");
-
-        for(int i = 0; i < rep_info.size(); ++ i)
-        {
-            std::vector<QString> tmp_rep_model = rep_model;
-            for(int j = 0; j < rep_info[i].size(); ++ j)
-            {
-                QString rep_mark = "${TB_ARG" + QString::number(j + 1) + "}";
-                for(int k = 0; k < tmp_rep_model.size(); ++ k)
-                {
-                    if(rep_model[k].indexOf(rep_mark) != -1)
-                    {
-                        replaceText(rep_mark, rep_info[i][j], tmp_rep_model[k]);
-                    }
-                }
-            }
-            for(int j = 0; j < rep_model.size(); ++ j) rep_res.append(tmp_rep_model[j]);
-        }
-        document_xml.replace(loop_start, loop_end - loop_start, rep_res);
-    }
-
-    return 0;
-}
-
 int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
 {
     QString tmp;
@@ -430,7 +351,7 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
         rep_model.clear();
         rep_res.clear();
         index = indexs[dex];
-        int pos_start = myFind(document_xml, "${TB_START}", index);
+        int pos_start = myFind(document_xml, TABLE_LOOP_START_MARK, index);
         if(pos_start == -1)
         {
             qDebug() << "The " << index << "th TB_START not found";
@@ -443,7 +364,7 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
             return -2;
         }
 
-        int pos_end = myFind(document_xml, "${TB_END}", index);
+        int pos_end = myFind(document_xml, TABLE_LOOP_END_MARK, index);
         if(pos_end == -1)
         {
             qDebug() << "The " << index << "th TB_END not found";
@@ -476,7 +397,7 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
                         int p1 = findAround(tmp, "<w:p>", tmp_pos, UP);
                         int p2 = tmp_pos + findAround(tmp, "</w:p>", tmp_pos, DOWN);
                         QString image_model;
-                        readXml(image_model, ":/new/xml_models/xml_models/image.xml");
+                        readXml(image_model, IMAGE_MODEL_PATH);
                         tmp.replace(p1, p2 - p1 + 6, image_model);
                         int rid = addImageFromMat(a.second);
                         int image_height = a.second.size().height * TABLE_IMAGE_SIZE_TIMES;
@@ -585,14 +506,17 @@ int WordOp::myFind(QString src, QString des, int index)
     if(index == -1)
     {
         pos = src.lastIndexOf(des);
-        return pos;
     }
-    while(_index != index)
+    else
     {
-        pos = src.indexOf(des, pos + 1);
-        ++ _index;
-        if(pos == -1) break;
+        while(_index != index)
+        {
+            pos = src.indexOf(des, pos + des.size());
+            ++ _index;
+            if(pos == -1) break;
+        }
     }
+    
     return pos;
 }
 

@@ -23,6 +23,14 @@ Function List:
 #define NORMAL_IMAGE_SIZE_TIMES 3000
 #define TABLE_IMAGE_SIZE_TIMES 700
 
+#define IMAGE_MODEL_PATH ":/new/xml_models/xml_models/image.xml"
+
+#define LP_START_MARK "${LP_START}"
+#define LP_END_MARK "${LP_END}"
+
+#define TABLE_LOOP_START_MARK "${TB_START}"
+#define TABLE_LOOP_END_MARK "${TB_END}"
+
 #include <fstream>
 #include <vector>
 #include <map>
@@ -57,7 +65,6 @@ class WordOp
 
         int addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos);
         
-        int addTableRows(std::vector<int> indexs, std::vector<QString> info_file_path);
         int addTableRows(std::vector<int> indexs, std::vector<Info> &infos);
     
     public:

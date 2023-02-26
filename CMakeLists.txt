@@ -15,8 +15,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(public_include ${CMAKE_CURRENT_SOURCE_DIR}/xml_models)
-set(save_src_dir ${CMAKE_CURRENT_SOURCE_DIR}/xml_models)
+set(src_dir ${CMAKE_CURRENT_SOURCE_DIR}/demo_files)
+set(save_src_dir ${CMAKE_CURRENT_BINARY_DIR}/demo_files)
+
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${save_src_dir}")
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory  "${src_dir}" "${save_src_dir}")
 
 set(QRC_SOURCE_FILES xml_models.qrc)
 
