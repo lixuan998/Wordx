@@ -30,6 +30,11 @@ void Info::addInfo(QString label, QString text)
 {
     label.replace("<", "&lt;");
     label.replace(">", "&gt;");
+    for(int i = 0; i < label.size() - 3; ++ i)
+    {
+        if(label[i] == '&' && label.mid(i, 4) != "&lt;" && label.mid(i, 4) != "&gt;")
+        label.replace(i, 1, "&amp;");
+    }
     label_to_text_map[label] = text;
 }
 
@@ -37,6 +42,11 @@ void Info::addInfo(QString label, cv::Mat image)
 {
     label.replace("<", "&lt;");
     label.replace(">", "&gt;");
+    for(int i = 0; i < label.size() - 3; ++ i)
+    {
+        if(label[i] == '&' && label.mid(i, 4) != "&lt;" && label.mid(i, 4) != "&gt;")
+        label.replace(i, 1, "&amp;");
+    }
     label_to_mat_map[label] = image;
 }
 

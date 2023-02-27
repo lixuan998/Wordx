@@ -1,7 +1,7 @@
 #include "wordop.h"
 
-QString WordOp::line_feed_head = "</w:t></w:r></w:p><w:p><w:r>";
-QString WordOp::line_feed_tail = "<w:t>";
+QString WordOp::line_feed_head = "$</w:t$>$</w:r$>$</w:p$>$<w:p$>$<w:r$>";
+QString WordOp::line_feed_tail = "$<w:t$>";
 
 /*---------------
 Public Functions
@@ -42,9 +42,23 @@ int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
 
     mark.replace("<", "&lt;");
     mark.replace(">", "&gt;");
+    for(int i = 0; i < mark.size() - 3; ++ i)
+    {
+        if(mark[i] == '&' && mark.mid(i, 4) != "&lt;" && mark.mid(i, 4) != "&gt;")
+        mark.replace(i, 1, "&amp;");
+    }
         
     replaced_text.replace("<", "&lt;");
     replaced_text.replace(">", "&gt;");
+
+    replaced_text.replace("$&lt;", "<");
+    replaced_text.replace("$&gt;", ">");
+
+    for(int i = 0; i < replaced_text.size() - 3; ++ i)
+    {
+        if(replaced_text[i] == '&' && replaced_text.mid(i, 4) != "&lt;" && replaced_text.mid(i, 4) != "&gt;")
+        replaced_text.replace(i, 1, "&amp;");
+    }
 
     if(rep_str == "")
     {
@@ -590,6 +604,12 @@ void WordOp::analyzeXml(std::vector<QString> &analysis_xml, QString origin_xml, 
             
             tmp_pos_before = analysis_xml.back().indexOf("<w:t>", tmp_pos_before + 6);
         }
+        for(int i = 0; i < analysis_xml.back().size() - 3; ++ i)
+        {
+            if(analysis_xml.back()[i] == '&' && analysis_xml.back().mid(i, 4) != "&lt;" && analysis_xml.back().mid(i, 4) != "&gt;")
+            analysis_xml.back().replace(i, 1, "&amp;");
+        }
+        
         ++index;
         pos_start = myFind(origin_xml, ("<" + flag + ">"), index);
         pos_end = myFind(origin_xml, ("</" + flag + ">"), index);
