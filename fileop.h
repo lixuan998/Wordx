@@ -37,7 +37,9 @@ class FileOp{
         ~FileOp();
         void static zipFolder(const QString ziped_path);
 
-        QString static unzipFolder(const QString unziped_path);
+        QString static unzipFolder(const QString ziped_path);
+        
+        QString static unzipFolder(const QString ziped_path, const QString dest_path);
 
         void static dirIterate(QString dir_path, void(*operation)(QString, void *, int ), void *arg, int flag);
 

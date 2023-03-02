@@ -49,12 +49,18 @@ class WordOp
 {
     public:
         WordOp(QString filepath = "");
+
+        WordOp(QString filepath, QString des_path);
         ~WordOp();
 
         void open(QString filepath = "");
+
+        void open(QString filepath, QString des_path);
+
         void close();
 
         int replaceText(QString mark, QString replaced_text, QString &rep_str);
+        int replaceText(Info info);
         int replaceText(std::vector<QString> marks, std::vector<QString> replaced_texts, QString &rep_str);
         int replaceText(std::vector<QString> marks, std::vector<QString> replaced_texts);
         int replaceText(QString mark_file, QString replaced_text_file);
@@ -82,6 +88,7 @@ class WordOp
 
     private:
         QString filepath;
+        QString des_path;
         QString cache_path;
         QString document_xml, style_xml, doc_rels_xml;
         QString image_rels;

@@ -3,6 +3,9 @@
 //该函数演示了如何将预设的标签替换成给定文本
 void how_to_replace_text(WordOp &op);
 
+//该函数演示了如何使用Info类将预设的标签替换成给定文本
+void how_to_replace_text_with_info(WordOp &op);
+
 //该函数演示了如何替换预设标签替换成给定图片, 图片以cv::Mat的形式传入
 void how_to_replace_images_given_by_mat(WordOp &op);
 
@@ -30,11 +33,12 @@ int main(int argc, char **argv)
     }
     else word_path = argv[1];
 
+    QString des_path = "../generation_of_standard_model.docx";
     //创建WordOp类的实例，可在构造函数中制定打开的.docx文档的路径或者在open()方法中指定
-    WordOp op(word_path);
+    WordOp op(word_path, des_path);
     op.open();
 
-    how_to_replace_text(op);
+    how_to_replace_text_with_info(op);
     how_to_replace_images_given_by_mat(op);
     how_to_replace_images_given_by_path(op);
     how_to_add_informations_recursively(op);
@@ -42,8 +46,7 @@ int main(int argc, char **argv)
 
     op.close();
 
-    QString gen_path = word_path.mid(0, word_path.lastIndexOf(".")) + "_.docx";
-    qDebug() << "\033[32m" << "----------New file \"" << gen_path << "\" generated----------";
+    qDebug() << "\033[32m" << "----------New file \"" << des_path << "\" generated----------";
 }
 
 void how_to_replace_text(WordOp &op)
@@ -69,6 +72,18 @@ void how_to_replace_text(WordOp &op)
     | 标签集合和文本集合里的元素是一一对应的              |
     ----------------------------------------------*/
     op.replaceText(marks, replace_with);
+}
+
+void how_to_replace_text_with_info(WordOp &op)
+{
+    Info info;
+    info.addInfo("$<STL_SN>", "1000001");
+    info.addInfo("${STL_CRAT_TME}", "2023年2月9日");
+    info.addInfo("${STL_LEN}", "10");
+    info.addInfo("${STL_WID}", "20");
+    info.addInfo("${STL_SKNESS}", "22");
+    info.addInfo("${STL_DFCT_TP}", "污渍");
+    op.replaceText(info);
 }
 
 void how_to_replace_images_given_by_mat(WordOp &op)

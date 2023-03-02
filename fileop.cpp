@@ -39,7 +39,7 @@ void FileOp::dirIterate(QString dir_path, void(*operation)(QString path, void *a
 
 void FileOp::zipFolder(const QString unziped_path)
 {
-   QString zip_path = unziped_path.mid(0, unziped_path.lastIndexOf('.')) + "_.docx";
+   QString zip_path = unziped_path.mid(0, unziped_path.lastIndexOf('.')) + ".docx";
    if(QFile::exists(zip_path)) QFile::remove(zip_path);
    zipper::Zipper *zipper = new zipper::Zipper(zip_path.toStdString(), zipper::Zipper::openFlags::Overwrite);
    dirIterate(unziped_path, dirZiper, (void *) zipper, 0);
@@ -58,6 +58,14 @@ QString FileOp::unzipFolder(const QString ziped_path)
    return dir_path;
 }
 
+QString FileOp::unzipFolder(const QString ziped_path, const QString dest_path)
+{
+   int dot_pos = dest_path.lastIndexOf('.');
+   QString dir_path = dest_path.mid(0, dot_pos) + ".cache";
+   zipper::Unzipper *unzipper = new zipper::Unzipper(ziped_path.toStdString());
+   unzipper->extract(dir_path.toStdString());
+   return dir_path;
+}
 void FileOp::deleteCache(QString cache_path)
 {
     QDir tmp_dir(cache_path);

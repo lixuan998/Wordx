@@ -10,7 +10,17 @@ Public Functions
 WordOp::WordOp(QString filepath)
 {
     cache_path = "";
+    des_path = "";
     this->filepath = filepath;
+    image_rels = "<Relationship Id=\"${rId}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"${target}\"/>";
+    qDebug() << "A WordOp instance has been created.";
+}
+
+WordOp::WordOp(QString filepath, QString des_path)
+{
+    cache_path = "";
+    this->filepath = filepath;
+    this->des_path = des_path;
     image_rels = "<Relationship Id=\"${rId}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"${target}\"/>";
     qDebug() << "A WordOp instance has been created.";
 }
@@ -23,13 +33,20 @@ WordOp::~WordOp()
 void WordOp::open(QString filepath)
 {
     if(!filepath.isEmpty()) this->filepath = filepath;
-    cache_path = FileOp::unzipFolder(this->filepath);
+    if(!des_path.isEmpty()) cache_path = FileOp::unzipFolder(this->filepath, this->des_path);
+    else cache_path = FileOp::unzipFolder(this->filepath);
+    readXml(document_xml, (cache_path + "/word/document.xml"));
+}
+
+void WordOp::open(QString filepath, QString des_path)
+{
+    if(!filepath.isEmpty()) this->filepath = filepath;
+    cache_path = FileOp::unzipFolder(this->filepath, des_path);
     readXml(document_xml, (cache_path + "/word/document.xml"));
 }
 
 void WordOp::close()
 {
-
     writeXml(document_xml, (cache_path + "/word/document.xml"));
     FileOp::zipFolder(cache_path);
     document_xml.clear();
@@ -50,7 +67,6 @@ int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
         
     replaced_text.replace("<", "&lt;");
     replaced_text.replace(">", "&gt;");
-
     replaced_text.replace("$&lt;", "<");
     replaced_text.replace("$&gt;", ">");
 
@@ -91,6 +107,18 @@ int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
         rep_str.replace(mark, replaced_text);
     }
     return 0;
+}
+
+int WordOp::replaceText(Info info)
+{
+    std::map<QString, QString> mark_to_replacements_map = info.getLabelText();
+    std::vector<QString> marks, replaced_texts;
+    for(auto a = mark_to_replacements_map.begin(); a != mark_to_replacements_map.end(); ++a)
+    {
+        marks.push_back((*a).first);
+        replaced_texts.push_back((*a).second);
+    }
+    return replaceText(marks, replaced_texts);
 }
 
 int WordOp::replaceText(std::vector<QString> marks, std::vector<QString> replaced_texts)
