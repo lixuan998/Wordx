@@ -1,4 +1,4 @@
-
+﻿
 #ifndef _ENTROPY_FUN_H
 #define _ENTROPY_FUN_H
 

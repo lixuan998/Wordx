@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/new/xml_models">
-        <file>xml_models/image.xml</file>
-        <file>xml_models/table_style.xml</file>
-    </qresource>
-</RCC>

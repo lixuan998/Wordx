@@ -1,4 +1,4 @@
-#include "wordop.h"
+﻿#include "wordop.h"
 
 //该函数演示了如何将预设的标签替换成给定文本
 void how_to_replace_text(WordOp &op);

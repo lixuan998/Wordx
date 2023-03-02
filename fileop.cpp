@@ -1,4 +1,4 @@
-/***************************************************
+﻿/***************************************************
 File name:  fileop.cpp
 Author: Li Xuan
 Version: 1.0
@@ -7,6 +7,8 @@ Description:  A function implementation of fileop.h
 ****************************************************/
 
 #include "fileop.h"
+#include <QDebug>
+#include <QDir>
 
 /*---------------
 Public Functions
@@ -49,7 +51,7 @@ void FileOp::zipFolder(const QString unziped_path)
    deleteCache(unziped_path);
 }
 
-QString FileOp::unzipFolder(const QString ziped_path)
+QString FileOp::unzipFolder(QString ziped_path)
 {
    int dot_pos = ziped_path.lastIndexOf('.');
    QString dir_path = ziped_path.mid(0, dot_pos) + ".cache";
@@ -58,10 +60,12 @@ QString FileOp::unzipFolder(const QString ziped_path)
    return dir_path;
 }
 
-QString FileOp::unzipFolder(const QString ziped_path, const QString dest_path)
-{
+QString FileOp::unzipFolder(QString ziped_path, QString dest_path)
+{  
+   qDebug() << "curr: " << QDir::currentPath();
    int dot_pos = dest_path.lastIndexOf('.');
    QString dir_path = dest_path.mid(0, dot_pos) + ".cache";
+   QDir dir(dir_path);
    zipper::Unzipper *unzipper = new zipper::Unzipper(ziped_path.toStdString());
    unzipper->extract(dir_path.toStdString());
    return dir_path;

@@ -1,4 +1,4 @@
-/* zran.c -- example of zlib/gzip stream indexing and random access
+﻿/* zran.c -- example of zlib/gzip stream indexing and random access
  * Copyright (C) 2005, 2012, 2018 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  * Version 1.2  14 Oct 2018  Mark Adler */

@@ -1,4 +1,4 @@
-/* minizip.c
+﻿/* minizip.c
    Version 1.1, February 14h, 2010
    sample part of the MiniZip project
 

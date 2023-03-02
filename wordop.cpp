@@ -1,4 +1,4 @@
-#include "wordop.h"
+﻿#include "wordop.h"
 
 QString WordOp::line_feed_head = "$</w:t$>$</w:r$>$</w:p$>$<w:p$>$<w:r$>";
 QString WordOp::line_feed_tail = "$<w:t$>";
@@ -9,6 +9,8 @@ Public Functions
 
 WordOp::WordOp(QString filepath)
 {
+    origin_work_path = QDir::currentPath();
+    QDir::setCurrent(QCoreApplication::applicationDirPath());
     cache_path = "";
     des_path = "";
     this->filepath = filepath;
@@ -18,6 +20,8 @@ WordOp::WordOp(QString filepath)
 
 WordOp::WordOp(QString filepath, QString des_path)
 {
+    origin_work_path = QDir::currentPath();
+    QDir::setCurrent(QCoreApplication::applicationDirPath());
     cache_path = "";
     this->filepath = filepath;
     this->des_path = des_path;
@@ -27,19 +31,23 @@ WordOp::WordOp(QString filepath, QString des_path)
 
 WordOp::~WordOp()
 {
+    QDir::setCurrent(origin_work_path);
     qDebug() << "A WordOp instance has been destroyed.";
 }
 
 void WordOp::open(QString filepath)
 {
-    if(!filepath.isEmpty()) this->filepath = filepath;
+    if(!(filepath.isEmpty())) this->filepath = filepath;
     if(!des_path.isEmpty()) cache_path = FileOp::unzipFolder(this->filepath, this->des_path);
     else cache_path = FileOp::unzipFolder(this->filepath);
+
+    qDebug() << "filepath: " << filepath << " des_path: " << des_path;
     readXml(document_xml, (cache_path + "/word/document.xml"));
 }
 
 void WordOp::open(QString filepath, QString des_path)
 {
+    qDebug() << "filepath: " << filepath;
     if(!filepath.isEmpty()) this->filepath = filepath;
     cache_path = FileOp::unzipFolder(this->filepath, des_path);
     readXml(document_xml, (cache_path + "/word/document.xml"));
@@ -229,7 +237,7 @@ int WordOp::replaceImageFromMat(std::vector<QString> marks, std::vector<cv::Mat>
         int mark_pos = myFind(document_xml, mark, 1);
         QDir dir((cache_path + "/word/media"));
         int rid = addImageFromMat(replace_mat_images[i]);
-
+        if(rid == -1) continue;
         int image_height = replace_mat_images[i].size().height * NORMAL_IMAGE_SIZE_TIMES;
         int image_width = replace_mat_images[i].size().width * NORMAL_IMAGE_SIZE_TIMES;
         QString img_model;
@@ -356,6 +364,11 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
                         tmp.clear();
                         readXml(tmp, IMAGE_MODEL_PATH);
                         int rid = addImageFromMat(a.second);
+                        if(rid == -1)
+                        {
+                            ++ j;
+                            goto st;
+                        }
                         int image_height = a.second.size().height * NORMAL_IMAGE_SIZE_TIMES;
                         int image_width = a.second.size().width * NORMAL_IMAGE_SIZE_TIMES;
                         replaceText("${ID}", QString::number(rid), tmp);
@@ -458,6 +471,7 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
                         readXml(image_model, IMAGE_MODEL_PATH);
                         tmp.replace(p1, p2 - p1 + 6, image_model);
                         int rid = addImageFromMat(a.second);
+                        if(rid == -1) continue;
                         int image_height = a.second.size().height * TABLE_IMAGE_SIZE_TIMES;
                         int image_width = a.second.size().width * TABLE_IMAGE_SIZE_TIMES;
 
@@ -706,6 +720,12 @@ int WordOp::addImage(QString replace_image_path)
 
 int WordOp::addImageFromMat(cv::Mat replace_mat_image)
 {
+    if(replace_mat_image.empty())
+	{
+		qDebug() << "Error replace_mat_image is isEmpty ";
+		return -1;
+	}
+
     QDir tempdir((cache_path + "/word/media"));
     int image_sn = tempdir.count() - 2;    
     QString mark = ("image" + QString::number((image_sn + 1)));
@@ -735,12 +755,6 @@ int WordOp::addImageFromMat(cv::Mat replace_mat_image)
         }
         ++ rId_sn;
     }
-
-	if (replace_mat_image.empty())
-	{
-		qDebug() << "Error replace_mat_image is isEmpty ";
-		return -1;
-	}
 
     bool ret = cv::imwrite((cache_path + "/word/media/" + mark).toStdString(), replace_mat_image);
     if(ret == false)

@@ -1,4 +1,4 @@
-/* ioapi_mem.h -- IO base function header for compress/uncompress .zip
+﻿/* ioapi_mem.h -- IO base function header for compress/uncompress .zip
    files using zlib + zip or unzip API
 
    This version of ioapi is designed to access memory rather than files.

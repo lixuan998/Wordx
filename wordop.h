@@ -1,4 +1,4 @@
-/*********************************************************************************************************************************************
+﻿/*********************************************************************************************************************************************
 File name:  wordop.h
 Author: Li Xuan
 Version: 1.0
@@ -23,7 +23,7 @@ Function List:
 #define NORMAL_IMAGE_SIZE_TIMES 3000
 #define TABLE_IMAGE_SIZE_TIMES 700
 
-#define IMAGE_MODEL_PATH ":/new/xml_models/xml_models/image.xml"
+
 
 #define LP_START_MARK "${LP_START}"
 #define LP_END_MARK "${LP_END}"
@@ -38,12 +38,15 @@ Function List:
 #include <QImage>
 #include <QFile>
 #include <QDebug>
+#include <QCoreApplication>
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/core/core.hpp>
 
 #include "fileop.h"
 #include "info.h"
+
+#define IMAGE_MODEL_PATH (QCoreApplication::applicationDirPath() + "/xml_models/image.xml")
 
 class WordOp
 {
@@ -92,7 +95,7 @@ class WordOp
         QString cache_path;
         QString document_xml, style_xml, doc_rels_xml;
         QString image_rels;
-        
+        QString origin_work_path;
         QImage image;
 };
 #endif

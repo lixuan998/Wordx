@@ -1,4 +1,4 @@
-/*********************************************************************************************************************************************
+﻿/*********************************************************************************************************************************************
 File name:  fileop.h
 Author: Li Xuan
 Version: 1.0
@@ -37,9 +37,9 @@ class FileOp{
         ~FileOp();
         void static zipFolder(const QString ziped_path);
 
-        QString static unzipFolder(const QString ziped_path);
+        QString static unzipFolder(QString ziped_path);
         
-        QString static unzipFolder(const QString ziped_path, const QString dest_path);
+        QString static unzipFolder(QString ziped_path, QString dest_path);
 
         void static dirIterate(QString dir_path, void(*operation)(QString, void *, int ), void *arg, int flag);
 

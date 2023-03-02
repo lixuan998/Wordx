@@ -1,4 +1,4 @@
-#include "tools.h"
+﻿#include "tools.h"
 #include "defs.h"
 #include "minizip/ioapi_mem.h"
 #include <algorithm>

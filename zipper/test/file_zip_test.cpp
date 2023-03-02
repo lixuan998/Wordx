@@ -1,4 +1,4 @@
-#include "catch.hpp"
+﻿#include "catch.hpp"
 
 #include <zipper/zipper.h>
 #include <zipper/unzipper.h>
