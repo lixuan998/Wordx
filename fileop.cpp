@@ -7,8 +7,6 @@ Description:  A function implementation of fileop.h
 ****************************************************/
 
 #include "fileop.h"
-#include <QDebug>
-#include <QDir>
 
 /*---------------
 Public Functions
@@ -62,7 +60,6 @@ QString FileOp::unzipFolder(QString ziped_path)
 
 QString FileOp::unzipFolder(QString ziped_path, QString dest_path)
 {  
-   qDebug() << "curr: " << QDir::currentPath();
    int dot_pos = dest_path.lastIndexOf('.');
    QString dir_path = dest_path.mid(0, dot_pos) + ".cache";
    QDir dir(dir_path);

@@ -14,7 +14,7 @@ WordOp::WordOp(QString filepath)
     cache_path = "";
     des_path = "";
     this->filepath = filepath;
-    image_rels = "<Relationship Id=\"${rId}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"${target}\"/>";
+    image_rels = "<Relationship Id=\"${rId}\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"${target}\"/>"; 
     qDebug() << "A WordOp instance has been created.";
 }
 
@@ -40,8 +40,8 @@ void WordOp::open(QString filepath)
     if(!(filepath.isEmpty())) this->filepath = filepath;
     if(!des_path.isEmpty()) cache_path = FileOp::unzipFolder(this->filepath, this->des_path);
     else cache_path = FileOp::unzipFolder(this->filepath);
-
-    qDebug() << "filepath: " << filepath << " des_path: " << des_path;
+    QDir tempdir((cache_path + "/word/media"));
+    image_sn = tempdir.count() - 2; 
     readXml(document_xml, (cache_path + "/word/document.xml"));
 }
 
@@ -50,12 +50,15 @@ void WordOp::open(QString filepath, QString des_path)
     qDebug() << "filepath: " << filepath;
     if(!filepath.isEmpty()) this->filepath = filepath;
     cache_path = FileOp::unzipFolder(this->filepath, des_path);
+    QDir tempdir((cache_path + "/word/media"));
+    image_sn = tempdir.count() - 2; 
     readXml(document_xml, (cache_path + "/word/document.xml"));
 }
 
 void WordOp::close()
 {
     writeXml(document_xml, (cache_path + "/word/document.xml"));
+    QThreadPool::globalInstance()->waitForDone();
     FileOp::zipFolder(cache_path);
     document_xml.clear();
     cache_path.clear();
@@ -667,16 +670,14 @@ void WordOp::writeXml(QString &xml_file, QString filepath)
 }
 
 int WordOp::addImage(QString replace_image_path)
-{
-    QDir tempdir((cache_path + "/word/media"));
-    int image_sn = tempdir.count() - 2;    
-    QString mark = ("image" + QString::number((image_sn + 1)));
+{   
+    QString mark = ("image" + QString::number((++ image_sn)));
     QFile f_mark, f_image;
     int rId_sn = 1;
 	QDir tmp_dir((cache_path + "/word/media/"));
 	if(!tmp_dir.exists()) tmp_dir.mkpath((cache_path + "/word/media/"));
 
-    mark += ".png";
+    mark += ".jpeg";
     readXml(doc_rels_xml, (cache_path + "/word/_rels/document.xml.rels"));
     int pos;
     while(true)
@@ -705,16 +706,9 @@ int WordOp::addImage(QString replace_image_path)
 		return -1;
 	}
 
-	f_mark.setFileName((cache_path + "/word/media/" + mark));
-	f_image.setFileName((replace_image_path));
-    f_mark.open(QIODevice::ReadWrite);
-	f_image.open(QIODevice::ReadWrite);
-    
-	QByteArray b_array = f_image.readAll();
-	f_mark.write(b_array);
+    add_image_thread = new Add_Image_Thread((cache_path + "/word/media/" + mark), replace_image_path);
+    QThreadPool::globalInstance()->start(add_image_thread);
 
-    f_mark.close();
-    f_image.close();
     return rId_sn;
 }
 
@@ -726,14 +720,13 @@ int WordOp::addImageFromMat(cv::Mat replace_mat_image)
 		return -1;
 	}
 
-    QDir tempdir((cache_path + "/word/media"));
-    int image_sn = tempdir.count() - 2;    
-    QString mark = ("image" + QString::number((image_sn + 1)));
+      
+    QString mark = ("image" + QString::number((++ image_sn)));
     int rId_sn = 1;
 	QDir tmp_dir((cache_path + "/word/media/"));
 	if(!tmp_dir.exists()) tmp_dir.mkpath((cache_path + "/word/media/"));
 
-    mark += ".png";
+    mark += ".jpeg";
     readXml(doc_rels_xml, (cache_path + "/word/_rels/document.xml.rels"));
     int pos;
     while(true)
@@ -756,11 +749,7 @@ int WordOp::addImageFromMat(cv::Mat replace_mat_image)
         ++ rId_sn;
     }
 
-    bool ret = cv::imwrite((cache_path + "/word/media/" + mark).toStdString(), replace_mat_image);
-    if(ret == false)
-    {
-        qDebug() << "Fail to write replace_mat_image to " << (cache_path + "/word/media/" + mark);
-        return -2;
-    }
-    else return rId_sn;
+    add_image_thread = new Add_Image_Thread((cache_path + "/word/media/" + mark), replace_mat_image);
+    QThreadPool::globalInstance()->start(add_image_thread);
+    return rId_sn;
 }

@@ -31,7 +31,6 @@ Function List:
 #define TABLE_LOOP_START_MARK "${TB_START}"
 #define TABLE_LOOP_END_MARK "${TB_END}"
 
-#include <fstream>
 #include <vector>
 #include <map>
 #include <QDir>
@@ -39,12 +38,14 @@ Function List:
 #include <QFile>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QThreadPool>
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/core/core.hpp>
 
 #include "fileop.h"
 #include "info.h"
+#include "add_image_thread.h"
 
 #define IMAGE_MODEL_PATH (QCoreApplication::applicationDirPath() + "/xml_models/image.xml")
 
@@ -76,9 +77,6 @@ class WordOp
         
         int addTableRows(std::vector<int> indexs, std::vector<Info> &infos);
     
-    public:
-        static QString line_feed_head, line_feed_tail;
-
     private:
         int addImage(QString replace_image_path);
         int addImageFromMat(cv::Mat replace_mat_image);
@@ -89,6 +87,9 @@ class WordOp
         int myFind(QString src, QString des, int index = 1);
         int findAround(QString src, QString des, int cur_pos, int direction);
 
+    public:
+        static QString line_feed_head, line_feed_tail;
+
     private:
         QString filepath;
         QString des_path;
@@ -97,5 +98,7 @@ class WordOp
         QString image_rels;
         QString origin_work_path;
         QImage image;
+        Add_Image_Thread *add_image_thread;
+        int image_sn;
 };
 #endif

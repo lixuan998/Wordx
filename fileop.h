@@ -26,6 +26,7 @@ Function List:
 #include <stdio.h>
 #include <QFileInfo>
 #include <QDirIterator>
+#include <QDir>
 #include <QFile>
 
 #define MAX_PATH 1000
