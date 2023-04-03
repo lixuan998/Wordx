@@ -51,6 +51,7 @@ void FileOp::zipFolder(const QString unziped_path)
 
 QString FileOp::unzipFolder(QString ziped_path)
 {
+   if(!QFile::exists(ziped_path)) return;
    int dot_pos = ziped_path.lastIndexOf('.');
    QString dir_path = ziped_path.mid(0, dot_pos) + ".cache";
    zipper::Unzipper *unzipper = new zipper::Unzipper(ziped_path.toStdString());
