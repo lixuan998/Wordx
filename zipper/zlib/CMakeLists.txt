@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.4.4)
+cmake_minimum_required(VERSION 3.0)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
@@ -8,6 +8,10 @@ set(VERSION "1.2.11.1")
 option(ASM686 "Enable building i686 assembly implementation")
 option(AMD64 "Enable building amd64 assembly implementation")
 option(COMPILE_EXAMPLES "Compile the Examples included with zlib" ON)
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin") 
+  set(CMAKE_OSX_ARCHITECTURES arm64)
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")

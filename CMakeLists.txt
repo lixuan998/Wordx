@@ -1,8 +1,12 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.0)
 project(Wordx LANGUAGES CXX)
 include_directories(zipper)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin") 
+  set(CMAKE_OSX_ARCHITECTURES arm64)
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

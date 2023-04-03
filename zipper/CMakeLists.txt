@@ -7,7 +7,8 @@
 ###############################################################################
 
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
-cmake_minimum_required(VERSION 3.15)
+set(CMAKE_OSX_ARCHITECTURES x86_64)
+cmake_minimum_required(VERSION 3.0)
 project(zipper)
 
 # Set useful CMake flags
@@ -15,7 +16,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(CMAKE_DEBUG_POSTFIX "d")
-
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin") 
+  set(CMAKE_OSX_ARCHITECTURES arm64)
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 include (CMakeTestCCompiler)
 include (CheckCSourceCompiles)
 include (CheckCXXSourceCompiles)
