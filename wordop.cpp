@@ -58,7 +58,7 @@ void WordOp::open(QString filepath, QString des_path)
 void WordOp::close()
 {
     writeXml(document_xml, (cache_path + "/word/document.xml"));
-    QThreadPool::globalInstance()->waitForDone();
+    thread_pool.waitForDone();
     FileOp::zipFolder(cache_path);
     document_xml.clear();
     cache_path.clear();
@@ -707,7 +707,7 @@ int WordOp::addImage(QString replace_image_path)
 	}
 
     add_image_thread = new Add_Image_Thread((cache_path + "/word/media/" + mark), replace_image_path);
-    QThreadPool::globalInstance()->start(add_image_thread);
+    thread_pool.start(add_image_thread);
 
     return rId_sn;
 }
@@ -750,6 +750,6 @@ int WordOp::addImageFromMat(cv::Mat replace_mat_image)
     }
 
     add_image_thread = new Add_Image_Thread((cache_path + "/word/media/" + mark), replace_mat_image);
-    QThreadPool::globalInstance()->start(add_image_thread);
+    thread_pool.start(add_image_thread);
     return rId_sn;
 }

@@ -86,6 +86,7 @@ class WordOp
         void analyzeXml(std::vector<QString> &analysis_xml, QString origin_xml, QString flag);
         int myFind(QString src, QString des, int index = 1);
         int findAround(QString src, QString des, int cur_pos, int direction);
+        QThreadPool thread_pool;
 
     public:
         static QString line_feed_head, line_feed_tail;
