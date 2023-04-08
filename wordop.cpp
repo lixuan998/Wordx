@@ -185,13 +185,35 @@ int WordOp::replaceImage(std::vector<QString> marks, std::vector<QString> replac
     for(int i = 0; i < marks.size(); ++ i)
     {
         QString mark = marks[i];
-        QString replace_image_path = replace_image_paths[i];
+        mark.remove("}");
         int mark_pos = myFind(document_xml, mark, 1);
+        if(mark_pos == -1) continue;
+        QString replace_image_path = replace_image_paths[i];
+        
         QDir dir((cache_path + "/word/media"));
         cv::Mat tmp_image = cv::imread(replace_image_path.toStdString());
         int image_height = tmp_image.size().height * NORMAL_IMAGE_SIZE_TIMES;
         int image_width = tmp_image.size().width * NORMAL_IMAGE_SIZE_TIMES;
         int rid = addImage(replace_image_path);
+
+        for(int tmp_i = mark_pos;; ++ tmp_i)
+        {
+            if(document_xml[tmp_i] == '}')
+            {
+                mark = document_xml.mid(mark_pos, tmp_i - mark_pos);
+                break;
+            }
+        }
+        
+        QStringList mark_seg;
+        if(mark.contains(':'))
+        {
+            mark_seg = mark.split(":");
+            mark = mark_seg[0];
+            image_height = mark_seg[2].toInt() * NORMAL_IMAGE_SIZE_TIMES;
+            image_width = mark_seg[1].toInt() * NORMAL_IMAGE_SIZE_TIMES;
+        }
+        
         QString img_model;
         readXml(img_model, IMAGE_MODEL_PATH);
         replaceText("${ID}", QString::number(rid), img_model);
@@ -237,12 +259,34 @@ int WordOp::replaceImageFromMat(std::vector<QString> marks, std::vector<cv::Mat>
     for(int i = 0; i < marks.size(); ++ i)
     {
         QString mark = marks[i];
+
+        mark.remove("}");
         int mark_pos = myFind(document_xml, mark, 1);
+        if(mark_pos == -1) continue;
+        
         QDir dir((cache_path + "/word/media"));
         int rid = addImageFromMat(replace_mat_images[i]);
         if(rid == -1) continue;
         int image_height = replace_mat_images[i].size().height * NORMAL_IMAGE_SIZE_TIMES;
         int image_width = replace_mat_images[i].size().width * NORMAL_IMAGE_SIZE_TIMES;
+        for(int tmp_i = mark_pos;; ++ tmp_i)
+        {
+            if(document_xml[tmp_i] == '}')
+            {
+                mark = document_xml.mid(mark_pos, tmp_i - mark_pos);
+                break;
+            }
+        }
+        
+        QStringList mark_seg;
+        if(mark.contains(':'))
+        {
+            mark_seg = mark.split(":");
+            mark = mark_seg[0];
+            image_height = mark_seg[2].toInt() * NORMAL_IMAGE_SIZE_TIMES;
+            image_width = mark_seg[1].toInt() * NORMAL_IMAGE_SIZE_TIMES;
+        }
+        
         QString img_model;
         readXml(img_model, IMAGE_MODEL_PATH);
         replaceText("${ID}", QString::number(rid), img_model);
@@ -345,6 +389,7 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
         if(loop_end == -1 || loop_end == -1) return -3;
         loop_end += 6;
         tmp = document_xml.mid(pos_start, pos_end - pos_start);
+        
         pos_start = myFind(tmp, "<w:p>", 1);
         pos_end = myFind(tmp, "<w:p>", -1);
 
@@ -359,34 +404,50 @@ int WordOp::addInfoRecursive(std::vector<int> indexs, std::vector<Info> &infos)
                 st : 
                 if(j < rep_model.size()) tmp = rep_model[j];
                 else break;
-
                 for(auto a : label_to_mat_map)
                 {
-                    if(tmp.indexOf(a.first) != -1)
+                    QString tmp_mark = a.first;
+                    QStringList mark_seg;
+                    tmp_mark.remove("}");
+                    int tmp_pos = tmp.indexOf(tmp_mark);
+                    if(tmp_pos == -1) continue;
+                    int image_height = a.second.size().height * NORMAL_IMAGE_SIZE_TIMES;
+                    int image_width = a.second.size().width * NORMAL_IMAGE_SIZE_TIMES;
+                    for(int tmp_i = tmp_pos; ; ++ tmp_i)
                     {
-                        tmp.clear();
-                        readXml(tmp, IMAGE_MODEL_PATH);
-                        int rid = addImageFromMat(a.second);
-                        if(rid == -1)
+                        if(tmp[tmp_i] == '}')
                         {
-                            ++ j;
-                            goto st;
+                            tmp_mark = tmp.mid(tmp_pos, tmp_i - tmp_pos);
+                            break;
                         }
-                        int image_height = a.second.size().height * NORMAL_IMAGE_SIZE_TIMES;
-                        int image_width = a.second.size().width * NORMAL_IMAGE_SIZE_TIMES;
-                        replaceText("${ID}", QString::number(rid), tmp);
-                        replaceText("${NAME}", ("image" + QString::number(rid)), tmp);
-                        replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), tmp);
-                        replaceText("${H}", "align", tmp);
-                        replaceText("${HARG}", "center", tmp);
-                        replaceText("${V}", "posOffset", tmp);
-                        replaceText("${VARG}", "653", tmp);
-                        replaceText("${CX}", QString::number(image_width), tmp);
-                        replaceText("${CY}", QString::number(image_height), tmp);
-                        rep_res.append(tmp);
+                    }
+                    if(tmp_mark.contains(":"))
+                    {
+                        mark_seg = tmp_mark.split(':');
+                        tmp_mark = mark_seg[0];
+                        image_height = mark_seg[2].toInt() * NORMAL_IMAGE_SIZE_TIMES;
+                        image_width = mark_seg[1].toInt() * NORMAL_IMAGE_SIZE_TIMES;
+                    }
+                    tmp.clear();
+                    readXml(tmp, IMAGE_MODEL_PATH);
+                    int rid = addImageFromMat(a.second);
+                    if(rid == -1)
+                    {
                         ++ j;
                         goto st;
                     }
+                    replaceText("${ID}", QString::number(rid), tmp);
+                    replaceText("${NAME}", ("image" + QString::number(rid)), tmp);
+                    replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), tmp);
+                    replaceText("${H}", "align", tmp);
+                    replaceText("${HARG}", "center", tmp);
+                    replaceText("${V}", "posOffset", tmp);
+                    replaceText("${VARG}", "653", tmp);
+                    replaceText("${CX}", QString::number(image_width), tmp);
+                    replaceText("${CY}", QString::number(image_height), tmp);
+                    rep_res.append(tmp);
+                    ++ j;
+                    goto st;
                 }
                 for(auto a : label_to_text_map)
                 {
@@ -465,30 +526,48 @@ int WordOp::addTableRows(std::vector<int> indexs, std::vector<Info> &infos)
                 tmp = rep_model[j];
                 for(auto a : label_to_mat_map)
                 {
-                    tmp_pos = tmp.indexOf(a.first);
-                    if(tmp_pos != -1)
-                    {                        
-                        int p1 = findAround(tmp, "<w:p>", tmp_pos, UP);
-                        int p2 = tmp_pos + findAround(tmp, "</w:p>", tmp_pos, DOWN);
-                        QString image_model;
-                        readXml(image_model, IMAGE_MODEL_PATH);
-                        tmp.replace(p1, p2 - p1 + 6, image_model);
-                        int rid = addImageFromMat(a.second);
-                        if(rid == -1) continue;
-                        int image_height = a.second.size().height * TABLE_IMAGE_SIZE_TIMES;
-                        int image_width = a.second.size().width * TABLE_IMAGE_SIZE_TIMES;
-
-                        replaceText("${ID}", QString::number(rid), tmp);
-                        replaceText("${NAME}", ("image" + QString::number(rid)), tmp);
-                        replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), tmp);
-                        replaceText("${H}", "align", tmp);
-                        replaceText("${HARG}", "center", tmp);
-                        replaceText("${V}", "posOffset", tmp);
-                        replaceText("${VARG}", "653", tmp);
-                        replaceText("${CX}", QString::number(image_width), tmp);
-                        replaceText("${CY}", QString::number(image_height), tmp);
+                    QString tmp_mark = a.first;
+                    QStringList mark_seg;
+                    tmp_pos = tmp.indexOf(tmp_mark);
+                    if(tmp_pos == -1) continue;
+                    int image_height = a.second.size().height * TABLE_IMAGE_SIZE_TIMES;
+                    int image_width = a.second.size().width * TABLE_IMAGE_SIZE_TIMES;
+                    for(int tmp_i = tmp_pos; ; ++ tmp_i)
+                    {
+                        if(tmp[tmp_i] == '}')
+                        {
+                            tmp_mark = tmp.mid(tmp_pos, tmp_i - tmp_pos);
+                            break;
+                        }
                     }
+                    if(tmp_mark.contains(":"))
+                    {
+                        mark_seg = tmp_mark.split(':');
+                        tmp_mark = mark_seg[0];
+                        image_height = mark_seg[2].toInt() * TABLE_IMAGE_SIZE_TIMES;
+                        image_width = mark_seg[1].toInt() * TABLE_IMAGE_SIZE_TIMES;
+                    }
+                                           
+                    int p1 = findAround(tmp, "<w:p>", tmp_pos, UP);
+                    int p2 = tmp_pos + findAround(tmp, "</w:p>", tmp_pos, DOWN);
+                    QString image_model;
+                    readXml(image_model, IMAGE_MODEL_PATH);
+                    tmp.replace(p1, p2 - p1 + 6, image_model);
+                    int rid = addImageFromMat(a.second);
+                    if(rid == -1) continue;
+
+                    replaceText("${ID}", QString::number(rid), tmp);
+                    replaceText("${NAME}", ("image" + QString::number(rid)), tmp);
+                    replaceText("${IMAGE_SN}", ("rId" + QString::number(rid)), tmp);
+                    replaceText("${H}", "align", tmp);
+                    replaceText("${HARG}", "center", tmp);
+                    replaceText("${V}", "posOffset", tmp);
+                    replaceText("${VARG}", "653", tmp);
+                    replaceText("${CX}", QString::number(image_width), tmp);
+                    replaceText("${CY}", QString::number(image_height), tmp);
+                    
                 }
+
                 for(auto a : label_to_text_map)
                 {
                     if(tmp.indexOf(a.first) != -1)
@@ -716,7 +795,7 @@ int WordOp::addImageFromMat(cv::Mat replace_mat_image)
 {
     if(replace_mat_image.empty())
 	{
-		qDebug() << "Error replace_mat_image is isEmpty ";
+        qDebug() << "Error replace_mat_image is isEmpty ";
 		return -1;
 	}
 
