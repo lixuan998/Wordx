@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(Wordx LANGUAGES CXX)
+
 include_directories(zipper)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
