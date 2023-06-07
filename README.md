@@ -236,7 +236,7 @@ void how_to_add_table_rows(WordOp &op)
 
 ## API
 ```
-#include <wordx.h>
+#include "wordx.h"
 ```
 - int replaceText(QString mark, QString replaced_text, QString &rep_str)
 - int replaceText(Info info);
