@@ -25,7 +25,6 @@
   set(XML_MODEL_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/xml_models)
 
   execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory  "${XML_MODEL_SOURCE_DIR}" "${XML_MODEL_BINARY_DIR}")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory  "${XML_MODEL_SOURCE_DIR}" "${XML_MODEL_BINARY_DIR}")
 
   add_subdirectory(wordx)
 
