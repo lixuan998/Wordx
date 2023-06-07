@@ -28,7 +28,7 @@
 
   add_subdirectory(wordx)
 
-  target_include_directories(wordx_demo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/wordx/include)#也可以不用这行，但是在代码中头文件应改成#include"../include/wordx.h"
+  target_include_directories(${YOUR_PROJECT} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/wordx/include)#也可以不用这行，但是在代码中头文件应改成#include"../include/wordx.h"
 
   target_link_libraries(${YOUR_PROJECT} Wordx)#一般放在最后
 ```
