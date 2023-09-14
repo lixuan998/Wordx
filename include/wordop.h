@@ -84,6 +84,7 @@ class WordOp
         void readList(std::vector<std::vector<QString>> &str_list, QString filepath = "");
         void writeXml(QString &xml_file, QString filepath = "");
         void analyzeXml(std::vector<QString> &analysis_xml, QString origin_xml, QString flag);
+		void mergeText();
         int myFind(QString src, QString des, int index = 1);
         int findAround(QString src, QString des, int cur_pos, int direction);
         QThreadPool thread_pool;

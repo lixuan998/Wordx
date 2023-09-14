@@ -43,6 +43,7 @@ void WordOp::open(QString filepath)
     QDir tempdir((cache_path + "/word/media"));
     image_sn = tempdir.count() - 2; 
     readXml(document_xml, (cache_path + "/word/document.xml"));
+	mergeText();
 }
 
 void WordOp::open(QString filepath, QString des_path)
@@ -53,6 +54,7 @@ void WordOp::open(QString filepath, QString des_path)
     QDir tempdir((cache_path + "/word/media"));
     image_sn = tempdir.count() - 2; 
     readXml(document_xml, (cache_path + "/word/document.xml"));
+	mergeText();
 }
 
 void WordOp::close()
@@ -92,14 +94,7 @@ int WordOp::replaceText(QString mark, QString replaced_text, QString &rep_str)
         
         
         if(document_xml.isEmpty()) return -1;
-        int p1 = myFind(document_xml, "<w:p>", 1);
-        int p2 = myFind(document_xml, "</w:p>", -1);
-
-        QString tmp = document_xml.mid(p1, p2 + 6 - p1);
-
-        std::vector<QString> ana;
-
-        analyzeXml(ana, tmp, "w:p");
+		
 
         int pos = -1;
         while((pos = document_xml.indexOf(mark, pos + 1)) != -1)
@@ -738,6 +733,36 @@ void WordOp::analyzeXml(std::vector<QString> &analysis_xml, QString origin_xml, 
         pos_start = myFind(origin_xml, ("<" + flag + ">"), index);
         pos_end = myFind(origin_xml, ("</" + flag + ">"), index);
     }
+}
+
+void WordOp::mergeText()
+{
+	if(document_xml.isEmpty()) return;
+	int p1 = myFind(document_xml, "<w:p>", 1);
+    int p2 = myFind(document_xml, "</w:p>", -1);
+	
+	QString main_page = document_xml.mid(p1, p2 + 6 - p1);
+	std::vector<QString> wp_res;
+	analyzeXml(wp_res, main_page, "w:p");
+
+	for(int i = 0; i < wp_res.size(); ++ i)
+	{
+		int base_index = myFind(document_xml, "<w:p>", i + 1);
+		int tp1 = base_index + myFind(wp_res[i], "<w:t>", 1);
+		int tp2 = base_index + myFind(wp_res[i], "</w:t>", -1);
+		
+		std::vector<QString> wt_res;
+		analyzeXml(wt_res, wp_res[i], "w:t");
+		QString joint_str;
+		for(auto wt : wt_res)
+		{
+			joint_str += wt.mid(5, wt.length() - 11);
+		}
+	
+		if(!joint_str.isEmpty())
+		document_xml.replace(tp1, tp2 - tp1, "<w:t>" + joint_str);
+	}
+
 }
 
 void WordOp::writeXml(QString &xml_file, QString filepath)
